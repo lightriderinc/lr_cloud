@@ -1,7 +1,22 @@
 import SignInRequired from "@/components/auth/SignInRequired";
 import { getSessionOutcome } from "@/lib/auth/session";
+import { Suspense } from "react";
 
-export default async function SettingsLayout({
+// The session read sits behind a Suspense boundary rather than at the
+// layout's top level, as cacheComponents requires for request reads.
+export default function SettingsLayout({
+  children,
+}: Readonly<{
+  children: React.ReactNode;
+}>) {
+  return (
+    <Suspense fallback={null}>
+      <SettingsAuthGate>{children}</SettingsAuthGate>
+    </Suspense>
+  );
+}
+
+async function SettingsAuthGate({
   children,
 }: Readonly<{
   children: React.ReactNode;

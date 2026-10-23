@@ -3,7 +3,7 @@ import SidebarSecondary from "@/components/sidebar/SidebarSecondary";
 import SidebarSecondaryGate from "@/components/sidebar/SidebarSecondaryGate";
 import type { Metadata } from "next";
 import { IBM_Plex_Mono, IBM_Plex_Sans, Science_Gothic } from "next/font/google";
-import type { ReactNode } from "react";
+import { Suspense, type ReactNode } from "react";
 import "./globals.css";
 
 const ibmPlexSans = IBM_Plex_Sans({
@@ -39,7 +39,13 @@ export default function RootLayout({
         <Header />
         <div className="flex flex-1 min-h-0">
           <SidebarSecondaryGate>
-            <SidebarSecondary />
+            <Suspense
+              fallback={
+                <aside className="hidden w-56 shrink-0 border-r border-gray-100 lg:flex" />
+              }
+            >
+              <SidebarSecondary />
+            </Suspense>
           </SidebarSecondaryGate>
           <main className="flex-1 overflow-y-auto px-4 py-6 lg:px-8">
             {children}
