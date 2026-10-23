@@ -4,7 +4,7 @@ import type { ReactNode } from "react";
 // <main>'s padding so the backdrop and bottom border reach the edges.
 export default function PageHero({ children }: { children: ReactNode }) {
   return (
-    <section className="relative isolate -mx-4 -mt-6 overflow-hidden border-b border-gray-100 px-4 pt-12 pb-14 lg:-mx-8 lg:px-8 lg:pt-20 lg:pb-20">
+    <section className="relative isolate -mx-4 -mt-6 overflow-hidden border-b-2 border-gray-50 px-4 pt-12 pb-14 lg:-mx-8 lg:px-8 lg:pt-20 lg:pb-20">
       {/* <Image
         src="/LR-grid-bg.svg"
         alt=""

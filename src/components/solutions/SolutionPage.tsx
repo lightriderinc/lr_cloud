@@ -36,9 +36,7 @@ export default function SolutionPage({ solution }: { solution: Solution }) {
         />
 
         <div className="flex max-w-2xl flex-col gap-3">
-          <p className="text-2xs font-medium uppercase tracking-wider color-brand-primary">
-            {layer} layer
-          </p>
+
           <h1 className="hero font-semibold leading-tight text-gray-800">{name}</h1>
           <p className="text-lg text-gray-700">{tagline}</p>
           <p className="text-sm text-gray-600">{summary}</p>
