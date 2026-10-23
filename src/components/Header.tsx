@@ -1,9 +1,10 @@
+import { getSession } from "@/lib/auth/session";
 import Link from "next/link";
 import { Suspense } from "react";
-import Logo from "./Logo";
 import AuthenticationSection from "./AuthenticationSection";
+import HeaderNav from "./HeaderNav";
+import Logo from "./Logo";
 import MobileMenu from "./MobileMenu";
-import { getSession } from "@/lib/auth/session";
 
 // The header shell is static; only the account controls read the session, so
 // they stream in behind their own Suspense boundary (required for request
@@ -17,7 +18,9 @@ export default function Header() {
         </Link>
       </div>
 
-      <div className="flex items-center gap-1 mr-2">
+      <div className="flex items-center gap-12 mr-2">
+        <HeaderNav />
+
         <Suspense fallback={null}>
           <HeaderAccount />
         </Suspense>

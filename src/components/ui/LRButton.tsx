@@ -14,10 +14,10 @@ export interface LRButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   iconPosition?: "left" | "right";
 }
 
-const baseClasses =
+export const baseClasses =
   "inline-flex items-center justify-center default-radius text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 cursor-pointer transition-all duration-200 ease-in-out";
 
-const variantClasses: Record<LRButtonVariant, string> = {
+export const variantClasses: Record<LRButtonVariant, string> = {
   primary:
     "bg-[var(--brand-primary)] border border-[var(--brand-primary)] text-white hover:bg-[var(--brand-primary-light)] hover:border-[var(--brand-primary-light)] focus-visible:ring-[var(--brand-primary)]",
   "primary-outline":

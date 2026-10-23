@@ -1,8 +1,11 @@
 "use client";
 
 import { useEffect, useState, type ReactNode } from "react";
-import { MdMenu, MdClose } from "react-icons/md";
+import { MdMenu, MdClose, MdMenuBook } from "react-icons/md";
+import { DOCS_URL, MAIN_NAV } from "@/lib/solutions";
 import SidebarGroupSettings from "./sidebar/SidebarGroupSettings";
+import SidebarNavGroup from "./sidebar/SidebarNavGroup";
+import SidebarNavItem from "./sidebar/SidebarNavItem";
 
 export default function MobileMenu({
   children,
@@ -64,9 +67,27 @@ export default function MobileMenu({
             </button>
           </div>
 
-          {/* No main nav in this app, so the settings nav — the desktop
-              account dropdown's contents — is shown on every page. */}
+          {/* The header's main nav, followed by the settings nav — the
+              desktop account dropdown's contents — on every page. */}
           <nav className="flex-1 overflow-auto px-3 py-4">
+            <SidebarNavGroup label="Light Rider Cloud">
+              {MAIN_NAV.map(({ name, href, icon }) => (
+                <SidebarNavItem
+                  key={href}
+                  name={name}
+                  href={href}
+                  icon={icon}
+                  onNavigate={close}
+                />
+              ))}
+              <SidebarNavItem
+                name="Docs"
+                href={DOCS_URL}
+                icon={MdMenuBook}
+                onNavigate={close}
+                external
+              />
+            </SidebarNavGroup>
             <SidebarGroupSettings
               onNavigate={close}
               isAuthenticated={isAuthenticated}
