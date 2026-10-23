@@ -39,9 +39,6 @@ export default function Home() {
   return (
     <div className="animate-fade-in-up">
       <PageHero>
-        <p className="text-2xs font-medium uppercase tracking-wider color-brand-primary">
-          Light Rider Cloud
-        </p>
         <h1 className="hero max-w-3xl font-semibold leading-tight text-gray-800">
           Quantum for the next generation,{" "}
           <span className="text-brand-gradient">in one cloud.</span>

@@ -27,8 +27,8 @@ export default function HeaderNav() {
             aria-current={active ? "page" : undefined}
             className={`${itemClasses} ${
               active
-                ? "border-[var(--brand-primary)] font-medium text-gray-800"
-                : "border-transparent text-gray-400 hover:text-gray-800"
+                ? "border-[var(--brand-primary)] font-medium text-[var(--brand-primary)] pt-2"
+                : "border-transparent font-medium text-gray-400 hover:text-gray-800 pt-2"
             }`}
           >
             {label}
@@ -39,7 +39,7 @@ export default function HeaderNav() {
         href={DOCS_URL}
         target="_blank"
         rel="noopener noreferrer"
-        className={`${itemClasses} border-transparent text-gray-400 hover:text-gray-800`}
+        className={`${itemClasses} border-transparent font-medium text-gray-400 pt-2 hover:text-gray-800`}
       >
         Docs <MdArrowOutward />
       </a>

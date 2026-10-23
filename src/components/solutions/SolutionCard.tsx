@@ -9,7 +9,7 @@ export default function SolutionCard({ solution }: { solution: Solution }) {
   return (
     <Link
       href={href}
-      className="group flex h-full flex-col justify-between gap-6 border border-gray-100 bg-gray-50 p-5 default-radius card-hover-primary"
+      className="group flex h-full flex-col justify-between gap-6 border border-gray-100 bg-gray-100 p-5 default-radius card-hover-primary"
     >
       <div className="flex flex-col gap-4">
         <div className="flex items-start justify-between">

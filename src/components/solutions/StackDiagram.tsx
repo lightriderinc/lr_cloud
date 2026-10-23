@@ -29,7 +29,7 @@ export default function StackDiagram() {
           <Connector />
           <Link
             href={href}
-            className="group flex items-center gap-4 border border-gray-100 bg-gray-50 px-5 py-4 default-radius card-hover-primary"
+            className="group flex items-center gap-4 border border-gray-100 bg-gray-100 px-5 py-4 default-radius card-hover-primary"
           >
             <Icon className="shrink-0 text-3xl text-gray-300 transition-colors group-hover:text-[var(--brand-tertiary)]" />
             <div className="min-w-0 flex-1">
