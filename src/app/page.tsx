@@ -39,11 +39,11 @@ export default function Home() {
   return (
     <div className="animate-fade-in-up">
       <PageHero>
-        <h1 className="hero max-w-3xl font-semibold leading-tight text-gray-800">
+        <h1 className="hero-large max-w-4xl font-semibold leading-tight text-gray-800">
           Quantum for the next generation,{" "}
           <span className="text-brand-gradient">in one cloud.</span>
         </h1>
-        <p className="max-w-2xl text-gray-600">
+        <p className="max-w-3xl text-gray-600">
           Light Rider Cloud brings quantum compute, certified quantum entropy
           and post-quantum cryptography together as one software stack. Run
           circuits on real QPUs, draw verifiable randomness, and protect your
