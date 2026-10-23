@@ -1,10 +1,11 @@
 import Link from "next/link";
 import Logo from "./Logo";
+import AuthenticationSection from "./AuthenticationSection";
 import MobileMenu from "./MobileMenu";
 import { getSession } from "@/lib/auth/session";
 
-// Account controls (AccountControl, BalanceChip) slot in to the right of the
-// header once auth and billing are ported from the entropy platform.
+// Server component: reads auth state on the server so the Log in button
+// renders only for signed-out visitors, with no client-side flash.
 export default async function Header() {
   const { isAuthenticated } = await getSession();
 
@@ -17,7 +18,13 @@ export default async function Header() {
       </div>
 
       <div className="flex items-center gap-1 mr-2">
-        <MobileMenu isAuthenticated={isAuthenticated} />
+        {/* Desktop: account button. Mobile: hamburger that opens the menu. */}
+        <div className="hidden lg:block">
+          <AuthenticationSection dropdown />
+        </div>
+        <MobileMenu isAuthenticated={isAuthenticated}>
+          <AuthenticationSection />
+        </MobileMenu>
       </div>
     </header>
   );

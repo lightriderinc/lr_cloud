@@ -1,13 +1,8 @@
 "use client";
 
 import { useEffect, useState, type ReactNode } from "react";
-import { usePathname } from "next/navigation";
 import { MdMenu, MdClose } from "react-icons/md";
-import SidebarNav from "./sidebar/SidebarNav";
-
-// Route prefixes that get a secondary sidebar. Keep in sync with the branch
-// in SidebarNav.
-const SECONDARY_SIDEBAR_ROUTES = ["/settings"];
+import SidebarGroupSettings from "./sidebar/SidebarGroupSettings";
 
 export default function MobileMenu({
   children,
@@ -17,10 +12,6 @@ export default function MobileMenu({
   isAuthenticated?: boolean;
 }) {
   const [open, setOpen] = useState(false);
-  const pathname = usePathname();
-  const showSection = SECONDARY_SIDEBAR_ROUTES.some((r) =>
-    pathname?.startsWith(r),
-  );
   const close = () => setOpen(false);
 
   useEffect(() => {
@@ -31,10 +22,6 @@ export default function MobileMenu({
     document.addEventListener("keydown", onKey);
     return () => document.removeEventListener("keydown", onKey);
   }, [open]);
-
-  // No sidebar outside settings pages, so the menu has nothing to show there
-  // unless the header passes account controls in.
-  if (!showSection && !children) return null;
 
   return (
     <div className="lg:hidden">
@@ -77,12 +64,17 @@ export default function MobileMenu({
             </button>
           </div>
 
-          {showSection && (
-            <SidebarNav onNavigate={close} isAuthenticated={isAuthenticated} />
-          )}
+          {/* No main nav in this app, so the settings nav — the desktop
+              account dropdown's contents — is shown on every page. */}
+          <nav className="flex-1 overflow-auto px-3 py-4">
+            <SidebarGroupSettings
+              onNavigate={close}
+              isAuthenticated={isAuthenticated}
+            />
+          </nav>
 
           {children && (
-            <div className="border-t border-gray-100 px-3 py-4">{children}</div>
+            <div className="border-t border-gray-100 p-3">{children}</div>
           )}
         </div>
       </div>
