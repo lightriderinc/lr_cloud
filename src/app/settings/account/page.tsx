@@ -1,9 +1,8 @@
 import { handleSignOut } from "@/app/actions/auth";
 import LogoutButton from "@/components/auth/LogoutButton";
-import CurrentPlanBadge from "@/components/billing/CurrentPlanBadge";
 import ConnectedAccounts from "@/components/profile/ConnectedAccounts";
-import { resolveAvatarSources } from "@/lib/avatar";
 import { getDisplayName, getSession } from "@/lib/auth/session";
+import { resolveAvatarSources } from "@/lib/avatar";
 import {
   MOCK_BIRTHDATE,
   MOCK_HAS_PASSWORD,
@@ -58,7 +57,7 @@ export default async function AccountPage() {
               {name}
             </p>
           )}
-          <CurrentPlanBadge />
+          {/* <CurrentPlanBadge /> */}
         </div>
       </div>
 
