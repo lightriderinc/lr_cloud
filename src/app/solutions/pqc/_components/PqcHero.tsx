@@ -40,7 +40,7 @@ export default function PqcHero() {
       </div>
 
       <div className="flex flex-wrap items-center gap-3">
-        <GetStartedActions />
+        <GetStartedActions solution="pqc" />
         <LRLinkButton href={DOCS_URL} variant="secondary-outline" external>
           Documentation
         </LRLinkButton>

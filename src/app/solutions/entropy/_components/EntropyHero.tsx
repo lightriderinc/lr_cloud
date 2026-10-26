@@ -40,7 +40,7 @@ export default function EntropyHero() {
       </div>
 
       <div className="flex flex-wrap items-center gap-3">
-        <GetStartedActions />
+        <GetStartedActions solution="entropy" />
         <LRLinkButton href={DOCS_URL} variant="secondary-outline" external>
           Documentation
         </LRLinkButton>
