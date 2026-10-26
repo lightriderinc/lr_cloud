@@ -1,6 +1,11 @@
-import SolutionPage from "@/components/solutions/SolutionPage";
+import CtaBand from "@/components/solutions/CtaBand";
 import { SOLUTIONS } from "@/lib/solutions";
 import type { Metadata } from "next";
+import EntropyCapabilities from "./_components/EntropyCapabilities";
+import EntropyHero from "./_components/EntropyHero";
+import EntropyHowItWorks from "./_components/EntropyHowItWorks";
+import EntropySpecs from "./_components/EntropySpecs";
+import EntropyWorksWith from "./_components/EntropyWorksWith";
 
 const solution = SOLUTIONS.entropy;
 
@@ -10,5 +15,20 @@ export const metadata: Metadata = {
 };
 
 export default function Page() {
-  return <SolutionPage solution={solution} />;
+  return (
+    <div className="animate-fade-in-up">
+      <EntropyHero />
+
+      <div className="mx-auto flex max-w-7xl flex-col gap-20 py-14">
+        <EntropyCapabilities />
+        <EntropyHowItWorks />
+        <EntropySpecs />
+        <EntropyWorksWith />
+      </div>
+
+      <div className="-mx-4 lg:-mx-8 -mb-6">
+        <CtaBand />
+      </div>
+    </div>
+  );
 }
