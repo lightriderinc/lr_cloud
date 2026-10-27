@@ -5,7 +5,7 @@ import GetStartedActions from "./GetStartedActions";
 
 export default function CtaBand() {
   return (
-    <section className=" gap-6 bg-gray-800 px-6 py-10 default-radius g:px-10">
+    <section className=" gap-6 bg-gray-800 px-6 pt-10 pb-20 default-radius g:px-10">
       <div className=" flex flex-col mx-auto max-w-7xl md:flex-row md:items-center md:justify-between l">
         <div className="flex flex-col gap-3 ">
           <Image
@@ -13,6 +13,7 @@ export default function CtaBand() {
             alt="Light Rider Cloud"
             width={239}
             height={18}
+            className="mb-6"
           />
           <h2 className="text-2xl font-semibold text-white">
             Start building on the full stack

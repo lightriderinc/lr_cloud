@@ -15,7 +15,7 @@ const ACCOUNT_FEATURES = [
   {
     title: "Shared compute credits",
     description:
-      "One balance pays for quantum jobs, entropy draws and PQC tools. 1 credit = $0.01.",
+      "One balance pays for quantum jobs, entropy draws and PQC tools.",
     href: "/settings/manage-credits",
     icon: BiSolidCoin,
   },
@@ -59,14 +59,8 @@ export default function Home() {
       </PageHero>
 
       <div className="mx-auto flex max-w-7xl flex-col gap-20 py-14">
-        <section id="solutions" className="scroll-mt-6">
-          <SectionHeading
-            eyebrow="Solutions"
-            title="Three platforms. One stack."
-          >
-            Each platform stands on its own, and each is stronger alongside the
-            others.
-          </SectionHeading>
+        <section id="solutions" className="scroll-mt-6 mb-12">
+          <SectionHeading title="One account, three solutions" />
           <div className="grid gap-4 md:grid-cols-3">
             {SOLUTION_LIST.map((s) => (
               <SolutionCard key={s.slug} solution={s} />
@@ -79,19 +73,18 @@ export default function Home() {
           className="grid scroll-mt-6 gap-10 lg:grid-cols-[2fr_3fr]"
         >
           <SectionHeading
-            eyebrow="How it fits together"
-            title="Built from the hardware up"
+            title="How it fits together"
           >
-            Quantum hardware is the foundation. Its processors and
+            Quantum processors and
             error-corrected circuits are among the sources behind the entropy
-            service. That verified entropy then seeds the post-quantum keys that
+            service. Verified entropy seeds the post-quantum keys that
             protect your applications.
           </SectionHeading>
           <StackDiagram />
         </section>
 
         <section>
-          <SectionHeading eyebrow="One account" title="Everything in one place">
+          <SectionHeading title="Everything in one place">
             Your account, credits and keys work across every platform.
           </SectionHeading>
           <ul className="grid gap-4 md:grid-cols-3">
@@ -100,7 +93,7 @@ export default function Home() {
                 <li key={href}>
                   <Link
                     href={href}
-                    className="group flex h-full flex-col gap-3 border-t-2 border-gray-100 pt-4 transition-colors hover:border-[var(--brand-tertiary)]"
+                    className="group flex h-full flex-col gap-3 border-l-2 border-gray-100 p-4 transition-colors hover:border-[var(--brand-tertiary)]"
                   >
                     <Icon className="text-2xl text-gray-300 transition-colors group-hover:text-[var(--brand-tertiary)]" />
                     <h3 className="flex items-center gap-2 font-semibold text-gray-800">

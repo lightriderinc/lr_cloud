@@ -1,5 +1,9 @@
 import type { IconType } from "react-icons";
-import { MdCloudQueue, MdGrain, MdHub, MdShield } from "react-icons/md";
+import { GiPerspectiveDiceSixFacesRandom } from "react-icons/gi";
+import { MdCloudQueue, MdShield } from "react-icons/md";
+import { TbAtom2Filled } from "react-icons/tb";
+
+
 
 // Shared identity for the three platforms that make up the Light Rider Cloud
 // solution stack. Drives the home page, the header and mobile navigation, and
@@ -32,8 +36,8 @@ export const SOLUTIONS: Record<SolutionSlug, Solution> = {
     link: "https://platform.lightriderinc.com/",
     navLabel: "Quantum",
     name: "Quantum Compute",
-    layer: "Compute",
-    icon: MdHub,
+    layer: "Quantum",
+    icon: TbAtom2Filled,
     logo: { src: "/lightrider-quantum-logo-black.svg", width: 255, height: 18 },
     tagline: "Your gateway to quantum computing.",
     summary:
@@ -46,7 +50,7 @@ export const SOLUTIONS: Record<SolutionSlug, Solution> = {
     link: "https://pqc.lightriderinc.com/",
     navLabel: "PQC",
     name: "Post-Quantum Cryptography",
-    layer: "Security",
+    layer: "PQC",
     icon: MdShield,
     logo: { src: "/Lightrider-pqc-logo-black.svg", width: 226, height: 18 },
     tagline: "Find quantum-vulnerable cryptography, then replace it.",
@@ -60,10 +64,10 @@ export const SOLUTIONS: Record<SolutionSlug, Solution> = {
     link: "https://entropy.lightriderinc.com/",
     navLabel: "Entropy",
     name: "Entropy as a Service",
-    layer: "Randomness",
-    icon: MdGrain,
+    layer: "Entropy",
+    icon: GiPerspectiveDiceSixFacesRandom,
     logo: { src: "/lightrider-entropy-logo-black.svg", width: 252, height: 18 },
-    tagline: "Certified quantum randomness, with a receipt for every draw.",
+    tagline: "Certified high-quality randomness.",
     summary:
       "Draw verified random bytes from real quantum and certified hardware sources through an API. Every batch is health-checked and mixed so that no single source can bias it, and it arrives with a signed receipt.",
   },
