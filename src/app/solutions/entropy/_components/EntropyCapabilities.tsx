@@ -55,7 +55,7 @@ export default function EntropyCapabilities() {
         {CAPABILITIES.map(({ title, description, icon: Icon }) => (
           <li
             key={title}
-            className="flex flex-col gap-3 border border-gray-100 bg-gray-100 p-5 default-radius"
+            className="flex flex-col gap-3 border border-gray-50 bg-gray-50 p-5 default-radius"
           >
             <Icon className="text-2xl text-[var(--brand-tertiary)]" />
             <h3 className="font-semibold text-gray-800">{title}</h3>
