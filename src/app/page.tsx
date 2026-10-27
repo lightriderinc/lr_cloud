@@ -38,15 +38,13 @@ const ACCOUNT_FEATURES = [
 export default function Home() {
   return (
     <div className="animate-fade-in-up">
-      <PageHero>
+      <PageHero centered>
         <h1 className="hero-large max-w-4xl font-semibold leading-tight text-gray-800">
           Quantum for the next generation,{" "}
           <span className="text-brand-gradient">in one cloud.</span>
         </h1>
         <p className="max-w-3xl text-gray-600">
-          Light Rider Cloud brings quantum compute, certified quantum entropy
-          and post-quantum cryptography together as one software stack. Run
-          circuits on real QPUs, draw verifiable randomness, and protect your
+          Access quantum backends, draw verifiable randomness, and protect your
           systems against harvest-now-decrypt-later attacks, all from a single
           account.
         </p>
@@ -58,9 +56,14 @@ export default function Home() {
         </div>
       </PageHero>
 
-      <div className="mx-auto flex max-w-7xl flex-col gap-20 py-14">
+      <div className="mx-auto flex max-w-7xl flex-col gap-50 py-14">
         <section id="solutions" className="scroll-mt-6 mb-12">
-          <SectionHeading title="One account, three solutions" />
+          <div className="flex w-full items-center justify-center">
+            <SectionHeading
+              title="One account, three solutions"
+              centered
+            />
+          </div>
           <div className="grid gap-4 md:grid-cols-3">
             {SOLUTION_LIST.map((s) => (
               <SolutionCard key={s.slug} solution={s} />
@@ -72,21 +75,16 @@ export default function Home() {
           id="stack"
           className="grid scroll-mt-6 gap-10 lg:grid-cols-[2fr_3fr]"
         >
-          <SectionHeading
-            title="How it fits together"
-          >
-            Quantum processors and
-            error-corrected circuits are among the sources behind the entropy
-            service. Verified entropy seeds the post-quantum keys that
-            protect your applications.
+          <SectionHeading title="How it fits together">
+            Quantum processors and error-corrected circuits are among the
+            sources behind the entropy service. Verified entropy seeds the
+            post-quantum keys that protect your applications.
           </SectionHeading>
           <StackDiagram />
         </section>
 
         <section>
-          <SectionHeading title="Everything in one place">
-            Your account, credits and keys work across every platform.
-          </SectionHeading>
+          <SectionHeading title="Everything in one place" />
           <ul className="grid gap-4 md:grid-cols-3">
             {ACCOUNT_FEATURES.map(
               ({ title, description, href, icon: Icon }) => (

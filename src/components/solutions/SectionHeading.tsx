@@ -4,13 +4,15 @@ export default function SectionHeading({
   eyebrow,
   title,
   children,
+  centered,
 }: {
   eyebrow?: string;
   title: string;
   children?: ReactNode;
+  centered?: boolean;
 }) {
   return (
-    <div className="mb-12 max-w-2xl">
+    <div className={`mb-12 max-w-2xl ${centered ? "flex flex-col items-center justify-center text-center" : ""}`}>
       <p className="mb-2 text-xs font-medium tracking-wider color-brand-primary">
         {eyebrow}
       </p>
