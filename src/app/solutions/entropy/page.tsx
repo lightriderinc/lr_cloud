@@ -4,7 +4,6 @@ import type { Metadata } from "next";
 import EntropyCapabilities from "./_components/EntropyCapabilities";
 import EntropyHero from "./_components/EntropyHero";
 import EntropyHowItWorks from "./_components/EntropyHowItWorks";
-import EntropySpecs from "./_components/EntropySpecs";
 import EntropyWorksWith from "./_components/EntropyWorksWith";
 
 const solution = SOLUTIONS.entropy;
@@ -22,7 +21,6 @@ export default function Page() {
       <div className="mx-auto flex max-w-7xl flex-col gap-20 py-14">
         <EntropyCapabilities />
         <EntropyHowItWorks />
-        <EntropySpecs />
         <EntropyWorksWith />
       </div>
 

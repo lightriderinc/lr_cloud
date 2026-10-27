@@ -22,11 +22,11 @@ const STEPS = [
 export default function QuantumHowItWorks() {
   return (
     <section>
-      <SectionHeading eyebrow="How it works" title="From first step to result" />
-      <ol className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+      <SectionHeading title="From first step to result" />
+      <ol className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {STEPS.map(({ title, description }, i) => (
-          <li key={title} className="border-t-2 border-color-brand pt-4">
-            <span className="font-mono text-sm text-gray-400">
+          <li key={title} className="bg-gray-50 p-4 pb-6">
+            <span className="font-semibold text-sm text-gray-200">
               {String(i + 1).padStart(2, "0")}
             </span>
             <h3 className="mt-1 font-semibold text-gray-800">{title}</h3>

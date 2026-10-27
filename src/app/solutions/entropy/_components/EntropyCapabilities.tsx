@@ -50,7 +50,7 @@ const CAPABILITIES = [
 export default function EntropyCapabilities() {
   return (
     <section>
-      <SectionHeading eyebrow="Capabilities" title="What you can do" />
+      <SectionHeading title="What you can do" />
       <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {CAPABILITIES.map(({ title, description, icon: Icon }) => (
           <li

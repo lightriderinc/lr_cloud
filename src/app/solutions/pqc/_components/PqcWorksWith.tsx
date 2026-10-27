@@ -6,7 +6,7 @@ import Link from "next/link";
 export default function PqcWorksWith() {
   return (
     <section>
-      <SectionHeading eyebrow="The solution stack" title="Works with">
+      <SectionHeading title="The solution stack">
         {SOLUTIONS.pqc.name} is one layer of Light Rider Cloud.{" "}
         <Link href="/#stack" className="brand-link">
           See how the stack fits together

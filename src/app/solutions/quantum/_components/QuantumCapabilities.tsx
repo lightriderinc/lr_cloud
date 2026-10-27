@@ -2,10 +2,9 @@ import SectionHeading from "@/components/solutions/SectionHeading";
 import {
   MdApps,
   MdCode,
-  MdEventAvailable,
   MdLayers,
   MdMemory,
-  MdSchool,
+  MdSchool
 } from "react-icons/md";
 
 const CAPABILITIES = [
@@ -14,12 +13,6 @@ const CAPABILITIES = [
     description:
       "Submit jobs to hardware such as Rigetti Cepheus-1-108Q, or iterate on simulators first.",
     icon: MdMemory,
-  },
-  {
-    title: "Experiment reservations",
-    description:
-      "Book dedicated time on a backend when an experiment needs uninterrupted access.",
-    icon: MdEventAvailable,
   },
   {
     title: "Managed services",
@@ -50,7 +43,7 @@ const CAPABILITIES = [
 export default function QuantumCapabilities() {
   return (
     <section>
-      <SectionHeading eyebrow="Capabilities" title="What you can do" />
+      <SectionHeading title="What you can do" />
       <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {CAPABILITIES.map(({ title, description, icon: Icon }) => (
           <li

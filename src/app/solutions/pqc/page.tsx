@@ -4,7 +4,6 @@ import type { Metadata } from "next";
 import PqcCapabilities from "./_components/PqcCapabilities";
 import PqcHero from "./_components/PqcHero";
 import PqcHowItWorks from "./_components/PqcHowItWorks";
-import PqcSpecs from "./_components/PqcSpecs";
 import PqcWorksWith from "./_components/PqcWorksWith";
 
 const solution = SOLUTIONS.pqc;
@@ -22,7 +21,6 @@ export default function Page() {
       <div className="mx-auto flex max-w-7xl flex-col gap-20 py-14">
         <PqcCapabilities />
         <PqcHowItWorks />
-        <PqcSpecs />
         <PqcWorksWith />
       </div>
 

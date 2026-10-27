@@ -4,7 +4,6 @@ import type { Metadata } from "next";
 import QuantumCapabilities from "./_components/QuantumCapabilities";
 import QuantumHero from "./_components/QuantumHero";
 import QuantumHowItWorks from "./_components/QuantumHowItWorks";
-import QuantumSpecs from "./_components/QuantumSpecs";
 import QuantumWorksWith from "./_components/QuantumWorksWith";
 
 const solution = SOLUTIONS.quantum;
@@ -22,7 +21,6 @@ export default function Page() {
       <div className="mx-auto flex max-w-7xl flex-col gap-20 py-14">
         <QuantumCapabilities />
         <QuantumHowItWorks />
-        <QuantumSpecs />
         <QuantumWorksWith />
       </div>
 
