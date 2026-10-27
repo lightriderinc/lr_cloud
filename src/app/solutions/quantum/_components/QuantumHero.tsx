@@ -10,7 +10,26 @@ const { name, navLabel, logo } = SOLUTIONS.quantum;
 
 export default function QuantumHero() {
   return (
-    <PageHero>
+    <PageHero
+      backdrop={
+        <>
+          <Image
+            src="/quantum-page-hero-bg.png"
+            alt=""
+            aria-hidden="true"
+            width={2654}
+            height={972}
+            priority
+            className="pointer-events-none absolute top-0 right-0 -z-10 hidden h-full w-auto max-w-none select-none lg:block"
+          />
+          {/* At lg the backdrop runs under the text; wash it out until xl. */}
+          <div
+            aria-hidden="true"
+            className="pointer-events-none absolute inset-y-0 left-80 -z-10 hidden w-full bg-linear-to-l from-transparent to-white/80 lg:block xl:hidden"
+          />
+        </>
+      }
+    >
       <nav
         aria-label="Breadcrumb"
         className="flex items-center gap-1 text-xs text-gray-400"
