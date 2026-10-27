@@ -1,5 +1,6 @@
 import CtaBand from "@/components/solutions/CtaBand";
 import GetStartedActions from "@/components/solutions/GetStartedActions";
+import HeroCipherField from "@/components/solutions/HeroCipherField";
 import PageHero from "@/components/solutions/PageHero";
 import SectionHeading from "@/components/solutions/SectionHeading";
 import SolutionCard from "@/components/solutions/SolutionCard";
@@ -38,7 +39,7 @@ const ACCOUNT_FEATURES = [
 export default function Home() {
   return (
     <div className="animate-fade-in-up">
-      <PageHero centered>
+      <PageHero centered backdrop={<HeroCipherField />}>
         <h1 className="hero-large max-w-4xl font-semibold leading-tight text-gray-800">
           Quantum for the next generation,{" "}
           <span className="text-brand-gradient">in one cloud.</span>
