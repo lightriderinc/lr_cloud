@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import { mix, parseHex, perStep, type RGB } from "./canvasField";
 
 // Grid geometry, in CSS pixels. Echoes the square tiles of LR-grid-bg.svg.
 const PITCH = 18;
@@ -17,20 +18,6 @@ const CURSOR_FOLLOW_SPEED = 2;
 // CURSOR_SCRAMBLE_SPEED: how often the key bits under the cursor flip.
 const CURSOR_SCRAMBLE_SPEED = 0.5;
 const GRAY: RGB = [145, 145, 145];
-
-type RGB = [number, number, number];
-
-function parseHex(value: string, fallback: RGB): RGB {
-  const hex = value.trim().replace("#", "");
-  if (!/^[0-9a-f]{6}$/i.test(hex)) return fallback;
-  return [0, 2, 4].map((i) => parseInt(hex.slice(i, i + 2), 16)) as RGB;
-}
-
-const mix = (a: number, b: number, t: number) => a + (b - a) * t;
-
-// Per-frame rates (easing factors and flip probabilities) are tuned for 60fps.
-// This rescales one to `steps` 60fps frames, so the pace holds on any refresh rate.
-const perStep = (rate: number, steps: number) => 1 - (1 - Math.min(rate, 1)) ** steps;
 
 // Side-panel backdrop for the landing hero: a field of tiles flickering with
 // random noise that resolves into a shifting brand-coloured bit pattern

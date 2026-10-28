@@ -1,4 +1,5 @@
 import GetStartedActions from "@/components/solutions/GetStartedActions";
+import HeroLockField from "@/components/solutions/HeroLockField";
 import PageHero from "@/components/solutions/PageHero";
 import LRLinkButton from "@/components/ui/LRLinkButton";
 import { DOCS_URL, SOLUTIONS } from "@/lib/solutions";
@@ -10,7 +11,17 @@ const { name, navLabel, logo } = SOLUTIONS.pqc;
 
 export default function PqcHero() {
   return (
-    <PageHero>
+    <PageHero
+      backdrop={
+        <>
+          <HeroLockField />
+          <div
+            aria-hidden="true"
+            className="pointer-events-none absolute inset-y-0 left-80 -z-10 hidden w-full bg-linear-to-r to-transparent from-white lg:block xl:hidden"
+          />
+        </>
+      }
+    >
       <nav
         aria-label="Breadcrumb"
         className="flex items-center gap-1 text-xs text-gray-400"
