@@ -7,15 +7,6 @@ import { FaGithub, FaGoogle, FaMicrosoft, FaApple } from "react-icons/fa6";
  * component) so new providers are a one-line addition and the same map can be
  * reused anywhere linked identities are shown.
  */
-/**
- * A linked social identity, flattened for display. Mirrors the shape of
- * `normalizeSocialIdentities` in the cloud platform's lib/logto-account.
- */
-export type LinkedSocialIdentity = {
-  target: string;
-  handle: string | null;
-};
-
 export type SocialProviderMeta = {
   label: string;
   Icon: IconType;

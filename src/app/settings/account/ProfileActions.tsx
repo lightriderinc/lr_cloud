@@ -5,23 +5,11 @@ import EditEmailModal from "@/components/profile/EditEmailModal";
 import EditPasswordModal from "@/components/profile/EditPasswordModal";
 import SetupMfaModal from "@/components/profile/SetupMfaModal";
 import LRButton from "@/components/ui/LRButton";
-import { unwrap } from "@/lib/actionResult";
+import { unwrap, type ActionResult } from "@/lib/actionResult";
 import { birthdateBounds, validateBirthdate } from "@/lib/birthdate";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { MdEditSquare } from "react-icons/md";
-import {
-  mockBindTotp,
-  mockCheckEmailAvailability,
-  mockDisableMfa,
-  mockGenerateTotpSecret,
-  mockSendEmailCode,
-  mockUpdateBirthdate,
-  mockUpdateEmail,
-  mockUpdatePassword,
-  mockVerifyEmailCode,
-  mockVerifyPassword,
-} from "./mockActions";
 
 type Modal = "password" | "email" | "birthdate" | "mfa-setup" | "mfa-disable" | null;
 
@@ -38,6 +26,31 @@ type Props = {
    * render itself.
    */
   connectedAccounts?: React.ReactNode;
+  onVerifyPassword: (password: string) => Promise<ActionResult<string>>;
+  onUpdatePassword: (
+    verificationId: string,
+    newPassword: string,
+  ) => Promise<ActionResult<void>>;
+  onSendEmailCode: (email: string) => Promise<ActionResult<string>>;
+  onVerifyEmailCode: (
+    email: string,
+    code: string,
+    verificationRecordId: string,
+  ) => Promise<ActionResult<string>>;
+  onCheckEmailAvailable: (email: string) => Promise<ActionResult<void>>;
+  onUpdateEmail: (
+    currentVerifId: string,
+    newVerifId: string,
+    email: string,
+  ) => Promise<ActionResult<void>>;
+  onUpdateBirthdate: (birthdate: string) => Promise<ActionResult<void>>;
+  onGenerateTotpSecret: () => Promise<string>;
+  onBindTotp: (
+    verificationRecordId: string,
+    secret: string,
+    code: string,
+  ) => Promise<void>;
+  onDisableMfa: (verificationRecordId: string) => Promise<void>;
 };
 
 export default function ProfileActions({
@@ -47,19 +60,17 @@ export default function ProfileActions({
   mfaEnabled: initialMfaEnabled,
   hasPassword,
   connectedAccounts,
+  onVerifyPassword,
+  onUpdatePassword,
+  onSendEmailCode,
+  onVerifyEmailCode,
+  onCheckEmailAvailable,
+  onUpdateEmail,
+  onUpdateBirthdate,
+  onGenerateTotpSecret,
+  onBindTotp,
+  onDisableMfa,
 }: Props) {
-  // TODO(backend): these were server actions passed down as props from
-  // page.tsx (Logto Account API). Mocked client-side for now.
-  const onVerifyPassword = mockVerifyPassword;
-  const onUpdatePassword = mockUpdatePassword;
-  const onSendEmailCode = mockSendEmailCode;
-  const onVerifyEmailCode = mockVerifyEmailCode;
-  const onCheckEmailAvailable = mockCheckEmailAvailability;
-  const onUpdateEmail = mockUpdateEmail;
-  const onUpdateBirthdate = mockUpdateBirthdate;
-  const onGenerateTotpSecret = mockGenerateTotpSecret;
-  const onBindTotp = mockBindTotp;
-  const onDisableMfa = mockDisableMfa;
   const router = useRouter();
   const [open, setOpen] = useState<Modal>(null);
   const [mfaEnabled, setMfaEnabled] = useState(initialMfaEnabled);

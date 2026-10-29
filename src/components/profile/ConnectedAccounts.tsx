@@ -1,4 +1,5 @@
-import { getSocialProviderMeta, type LinkedSocialIdentity } from "./socialProviders";
+import type { LinkedSocialIdentity } from "@/lib/logto-account";
+import { getSocialProviderMeta } from "./socialProviders";
 
 type Props = {
   /** Flattened social identities from `normalizeSocialIdentities`. */

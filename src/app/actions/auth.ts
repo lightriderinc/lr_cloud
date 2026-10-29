@@ -1,26 +1,29 @@
 "use server";
 
-import { cookies } from "next/headers";
-import { MOCK_SESSION_COOKIE } from "@/lib/auth/session";
-import { MOCK_USER } from "@/lib/mock/user";
-
-// Mock auth actions: sign in/out by setting/clearing the local session cookie
-// that getSession() reads. Setting a cookie in a Server Action re-renders the
-// current route in the same round trip, so the header, sidebar and settings
-// pages update in place.
+import { logtoConfig } from "@/app/logto";
+import { sanitizeReturnTo } from "@/lib/auth/silent-sso";
+import { signIn, signOut } from "@logto/next/server-actions";
+import { headers } from "next/headers";
 
 export async function handleSignIn() {
-  // TODO(backend): signIn(logtoConfig) via @logto/next/server-actions
-  (await cookies()).set(MOCK_SESSION_COOKIE, MOCK_USER.sub, {
-    httpOnly: true,
-    sameSite: "lax",
-    secure: process.env.NODE_ENV === "production",
-    path: "/",
-    maxAge: 60 * 60 * 24 * 7,
+  // Come back to the page the "Log in" click was made on. A Server Action is a
+  // POST from that page, so its Referer is the page URL; only the path is
+  // kept, and sanitizeReturnTo pins it to this origin (anything odd -> "/").
+  // The SDK's handleSignIn in /callback redirects to postRedirectUri.
+  let returnTo = "/";
+  try {
+    const referer = new URL((await headers()).get("referer") ?? "");
+    returnTo = sanitizeReturnTo(`${referer.pathname}${referer.search}`);
+  } catch {
+    // No or malformed Referer — fall back to the home page.
+  }
+
+  await signIn(logtoConfig, {
+    redirectUri: `${logtoConfig.baseUrl}/callback`,
+    postRedirectUri: `${logtoConfig.baseUrl}${returnTo}`,
   });
 }
 
 export async function handleSignOut() {
-  // TODO(backend): signOut(logtoConfig) via @logto/next/server-actions
-  (await cookies()).delete(MOCK_SESSION_COOKIE);
+  await signOut(logtoConfig);
 }

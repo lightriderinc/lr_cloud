@@ -1,9 +1,11 @@
+import SessionSync from "@/components/auth/SessionSync";
 import Header from "@/components/Header";
 import SidebarSecondary from "@/components/sidebar/SidebarSecondary";
 import SidebarSecondaryGate from "@/components/sidebar/SidebarSecondaryGate";
 import type { Metadata } from "next";
 import { IBM_Plex_Mono, IBM_Plex_Sans, Science_Gothic } from "next/font/google";
 import { Suspense, type ReactNode } from "react";
+import { getSession } from "@/lib/auth/session";
 import "./globals.css";
 
 const ibmPlexSans = IBM_Plex_Sans({
@@ -36,6 +38,9 @@ export default function RootLayout({
       className={`${ibmPlexSans.variable} ${ibmPlexMono.variable} ${scienceGothic.variable} h-full antialiased`}
     >
       <body className="h-full flex flex-col overflow-hidden">
+        <Suspense fallback={null}>
+          <SessionSyncWithSession />
+        </Suspense>
         <Header />
         <div className="flex flex-1 min-h-0">
           <SidebarSecondaryGate>
@@ -54,4 +59,11 @@ export default function RootLayout({
       </body>
     </html>
   );
+}
+
+// Reads the session for SessionSync's baseline behind its own Suspense
+// boundary, so the layout itself never awaits a request read (cacheComponents).
+async function SessionSyncWithSession() {
+  const { isAuthenticated } = await getSession();
+  return <SessionSync initialAuthenticated={isAuthenticated} />;
 }
