@@ -27,19 +27,19 @@ import {
   verifyPassword,
 } from "@/lib/logto-account";
 import { deleteAvatar, uploadAvatar } from "@/lib/supabase/avatars";
+import {
+  findUserByPrimaryEmail,
+  getUserAccountFacts,
+  isManagementApiConfigured,
+  type LogtoUserSummary,
+} from "@/lib/logto/management";
 import { getAccessToken } from "@logto/next/server-actions";
 import { refresh, revalidatePath } from "next/cache";
 import ProfileActions from "./ProfileActions";
 
-/**
- * Account page. Copied from the Quantum app's /settings/account, with one
- * difference: no Management API (M2M) yet. Quantum reads `identities` and
- * `hasPassword` from `GET /api/users/{id}` first and runs a duplicate-email
- * pre-check through it; here both come from the end-user Account API alone,
- * the same way the Entropy platform does it.
- */
+/** Account page. Copied from the Quantum app's /settings/account. */
 export default async function AccountPage() {
-  const { userInfo } = await getSession();
+  const { userInfo, claims } = await getSession();
 
   // Resolve the display name via the shared resolver so a brand-new user's full
   // name shows on first sign-in (session claims lag until the first refresh; the
@@ -49,14 +49,34 @@ export default async function AccountPage() {
   const account = await getAccountProfile();
   const birthdate = account?.profile?.birthdate ?? null;
 
-  // Linked socials + password status, straight off the Account API. It only
-  // returns these when the Logto Account Center `fields` config exposes them.
-  // hasPassword defaults to true on failure, preserving the change-password
-  // behavior for password users on a transient error.
-  // TODO(m2m): prefer getUserAccountFacts(sub) via the Management API, as the
-  // Quantum app does, once M2M credentials are configured for this app.
-  const hasPassword = account?.hasPassword ?? true;
-  const socialIdentities = normalizeSocialIdentities(account?.identities);
+  // Linked socials + password status.
+  //
+  // The end-user Account API (`/api/my-account`) only returns `identities` /
+  // `hasPassword` when the Logto Account Center `fields` config exposes them,
+  // so relying on it leaves social users with an empty "Connected accounts"
+  // section. The Management API (`GET /api/users/{id}`) returns both fields
+  // unconditionally, so we use it as the primary source and fall back to the
+  // Account API values only if the M2M lookup fails.
+  //
+  // hasPassword defaults to true on total failure, preserving the existing
+  // change-password behavior for password users on a transient error.
+  const sub = claims?.sub ?? userInfo?.sub ?? null;
+  let hasPassword = account?.hasPassword ?? true;
+  let socialIdentities = normalizeSocialIdentities(account?.identities);
+  if (sub && isManagementApiConfigured()) {
+    try {
+      const facts = await getUserAccountFacts(sub);
+      socialIdentities = normalizeSocialIdentities(facts.identities);
+      if (facts.hasPassword !== null) {
+        hasPassword = facts.hasPassword;
+      }
+    } catch (err) {
+      console.error(
+        "[account] failed to load identities/password via Management API; using Account API fallback:",
+        err,
+      );
+    }
+  }
 
   let mfaEnabled = false;
   try {
@@ -104,15 +124,44 @@ export default async function AccountPage() {
   }
 
   /**
-   * No Management API means no reliable pre-flight duplicate-email check (see
-   * the Quantum app's equivalent) — the Account API still enforces uniqueness
-   * when the change is finalized, so this lets the flow proceed straight to
-   * sending a code.
-   * TODO(m2m): restore the findUserByPrimaryEmail pre-check.
+   * Pre-flight duplicate-email check for the change-email flow. Runs BEFORE any
+   * verification code is sent, so the user is warned up front instead of only
+   * after verifying an address they can't actually use (bug EM-02).
+   *
+   * Throws a user-facing message on conflict; the modal surfaces it inline and
+   * stays on the "enter new email" step. Fails open on lookup errors — the
+   * Account API still enforces uniqueness when the change is finalized, so an
+   * infra hiccup in this pre-check never blocks a legitimate change.
+   *
+   * Note: confirming whether an email is registered is account enumeration.
+   * This matches the platform's existing sign-up behavior, and can be masked
+   * later via Logto's "Hide account existence" setting if desired.
    */
-  async function doCheckEmailAvailability(): Promise<ActionResult<void>> {
+  async function doCheckEmailAvailability(
+    emailAddr: string,
+  ): Promise<ActionResult<void>> {
     "use server";
-    return { ok: true, value: undefined };
+    return attempt(async () => {
+      const candidate = emailAddr.trim();
+      const { sub } = await requireLogtoUser();
+
+      let existing: LogtoUserSummary | null = null;
+      try {
+        existing = await findUserByPrimaryEmail(candidate);
+      } catch (err) {
+        console.error(
+          "[account] email availability pre-check failed; allowing flow to continue:",
+          err,
+        );
+        return;
+      }
+
+      if (!existing) return; // available
+      if (existing.id === sub) {
+        throw new Error("That's already the email address on your account.");
+      }
+      throw new Error("That email is already linked to another account.");
+    });
   }
 
   async function doSendEmailCode(
@@ -290,7 +339,6 @@ export default async function AccountPage() {
               {name}
             </p>
           )}
-          {/* <CurrentPlanBadge /> */}
         </div>
       </div>
 

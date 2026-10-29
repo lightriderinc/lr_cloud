@@ -2,15 +2,48 @@
 
 import { formatCredits } from "@/components/billing/CreditsSummary";
 import TablePagination from "@/components/ui/TablePagination";
-import { getMockTransfers, subscribeMockBilling } from "@/lib/mock/billing";
-import { useMockQuery } from "@/lib/mock/useMockQuery";
+import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 
 /**
  * Sent/received transfer history.
  *
- * Renders from mock ledger rows (src/lib/mock/billing.ts).
+ * Renders entirely from the ledger's own transfer columns — in particular
+ * `counterpartyEmailSnapshot`, captured at transfer time — so no live Logto
+ * lookup happens here and a counterparty later changing their email never
+ * rewrites what a past transfer said.
  */
+
+type TransferRow = {
+  id: string;
+  transferId: string | null;
+  batchId: string | null;
+  amountCents: number;
+  counterpartyEmail: string | null;
+  reason: string;
+  createdAt: string;
+};
+
+type TransfersPage = {
+  view: "sent" | "received";
+  page: number;
+  pageSize: number;
+  total: number;
+  hasMore: boolean;
+  transfers: TransferRow[];
+};
+
+async function fetchTransfers(
+  view: "sent" | "received",
+  page: number,
+): Promise<TransfersPage> {
+  const res = await fetch(
+    `/api/billing/credits/transfers?view=${view}&page=${page}`,
+  );
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.error ?? `HTTP ${res.status}`);
+  return data;
+}
 
 function headersFor(view: "sent" | "received") {
   return [
@@ -49,14 +82,13 @@ export default function TransferHistory() {
   const [view, setView] = useState<"sent" | "received">("sent");
   const [page, setPage] = useState(1);
 
-  // TODO(backend): GET /api/billing/credits/transfers?view=&page= → paginated ledger transfer rows
-  // Keeps the previous page on screen while the next one loads.
-  const { data, isLoading, isFetching } = useMockQuery(
-    getMockTransfers,
-    `${view}:${page}`,
-    subscribeMockBilling,
-  );
-  const error = null as Error | null;
+  const { data, isLoading, error, isFetching } = useQuery({
+    queryKey: ["billing", "transfers", view, page],
+    queryFn: () => fetchTransfers(view, page),
+    // Keeps the previous page on screen while the next one loads, instead of
+    // collapsing the table back to skeletons on every paging click.
+    placeholderData: (previous) => previous,
+  });
 
   function switchView(next: "sent" | "received") {
     setView(next);
@@ -91,9 +123,7 @@ export default function TransferHistory() {
         </p>
       ) : !isLoading && transfers.length === 0 ? (
         <div className="default-radius border border-dashed border-gray-200 bg-gray-50 p-16 text-center text-sm text-gray-500">
-          {view === "sent"
-            ? "Credits you send will appear here."
-            : "Credits other people send you will appear here."}
+          {view === "sent" ? "No transfers sent yet." : "No transfers received yet."}
         </div>
       ) : (
         <>

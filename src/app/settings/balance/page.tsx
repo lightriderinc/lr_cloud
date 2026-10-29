@@ -11,7 +11,6 @@ export default function BalancePage() {
       </p>
 
       <div className="flex flex-col gap-4">
-        {/* <SubscriptionsList /> */}
         <CreditsSummary />
       </div>
     </div>

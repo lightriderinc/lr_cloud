@@ -6,7 +6,7 @@ import SectionHeading from "@/components/solutions/SectionHeading";
 import SolutionCard from "@/components/solutions/SolutionCard";
 import StackDiagram from "@/components/solutions/StackDiagram";
 import LRLinkButton from "@/components/ui/LRLinkButton";
-import { SOLUTION_LIST } from "@/lib/solutions";
+import { productUrl, SOLUTION_LIST } from "@/lib/solutions";
 import Link from "next/link";
 import { BiSolidCoin } from "react-icons/bi";
 import { MdArrowForward, MdGroupAdd } from "react-icons/md";
@@ -24,7 +24,9 @@ const ACCOUNT_FEATURES = [
     title: "One set of API keys",
     description:
       "Create a key once and use it with every platform in the stack.",
-    href: "/settings/keys",
+    // Keys stay managed in the Quantum app for now; the same key works on
+    // Entropy, which manages it through Quantum's API.
+    href: productUrl("quantum", "/settings/keys"),
     icon: RiLockPasswordFill,
   },
   {
@@ -92,6 +94,9 @@ export default function Home() {
                 <li key={href}>
                   <Link
                     href={href}
+                    {...(href.startsWith("http")
+                      ? { target: "_blank", rel: "noopener noreferrer" }
+                      : {})}
                     className="group flex h-full flex-col gap-3 border-l-2 border-gray-100 p-4 transition-colors hover:border-[var(--brand-tertiary)]"
                   >
                     <Icon className="text-2xl text-gray-300 transition-colors group-hover:text-[var(--brand-tertiary)]" />

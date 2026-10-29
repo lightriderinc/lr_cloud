@@ -4,9 +4,11 @@
 // the one name for this app's own origin; it is what every redirect URI is
 // built from.
 //
-// No Management API (M2M) settings yet: those arrive with billing and the Pro
-// role sync, which still live in the Quantum app.
+// The Management API (M2M) endpoint is used for user lookups by email (credit
+// transfers, invites). No Pro role sync here: that stays with the Stripe
+// webhook in the Quantum app.
 export const logtoConfig = {
+  managementEndpoint: process.env.LOGTO_MANAGEMENT_ENDPOINT as string, // M2M-only
   endpoint: process.env.LOGTO_ENDPOINT as string,
   appId: process.env.LOGTO_APP_ID as string,
   appSecret: process.env.LOGTO_APP_SECRET as string,

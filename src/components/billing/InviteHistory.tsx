@@ -2,15 +2,8 @@
 
 import { formatCredits } from "@/components/billing/CreditsSummary";
 import TablePagination from "@/components/ui/TablePagination";
-import { mockDelay } from "@/lib/mock/delay";
-import {
-  MOCK_INVITES,
-  MOCK_INVITES_PAGE_SIZE,
-  MOCK_REWARDS,
-  type InviteRow,
-  type RewardRow,
-} from "@/lib/mock/rewards";
-import { useEffect, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { useState } from "react";
 
 /**
  * Invites sent, and rewards earned from them.
@@ -20,8 +13,26 @@ import { useEffect, useState } from "react";
  * paging doesn't collapse the table back to skeletons.
  */
 
-/** Window event SendInvite fires after a mock send, so this list picks up the new rows. */
-export const MOCK_INVITES_SENT_EVENT = "mock:invites-sent";
+type InviteRow = {
+  id: string;
+  email: string;
+  status: "pending" | "accepted" | "expired";
+  createdAt: string;
+  expiresAt: string;
+  rewardCents: number | null;
+};
+
+type RewardRow = {
+  id: string;
+  /** Which side of the referral this customer was on. */
+  side: "referrer" | "referee";
+  /** The person you invited, or the person who invited you. */
+  counterpartyEmail: string | null;
+  rewardCents: number | null;
+  qualifyingEventReason: string | null;
+  rewardedAt: string | null;
+  reason: string;
+};
 
 type InvitesPage = {
   view: "invites" | "rewards";
@@ -36,23 +47,11 @@ type InvitesPage = {
 async function fetchInvites(
   view: "invites" | "rewards",
   page: number,
-  allInvites: InviteRow[],
 ): Promise<InvitesPage> {
-  // TODO(backend): GET /api/invites?view=${view}&page=${page}
-  await mockDelay();
-  const source = view === "invites" ? allInvites : MOCK_REWARDS;
-  const start = (page - 1) * MOCK_INVITES_PAGE_SIZE;
-  const slice = source.slice(start, start + MOCK_INVITES_PAGE_SIZE);
-  return {
-    view,
-    page,
-    pageSize: MOCK_INVITES_PAGE_SIZE,
-    total: source.length,
-    hasMore: start + MOCK_INVITES_PAGE_SIZE < source.length,
-    ...(view === "invites"
-      ? { invites: slice as InviteRow[] }
-      : { rewards: slice as RewardRow[] }),
-  };
+  const res = await fetch(`/api/invites?view=${view}&page=${page}`);
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.error ?? `HTTP ${res.status}`);
+  return data;
 }
 
 const INVITE_HEADERS = ["Sent", "Invitee", "Status", "Reward"];
@@ -84,54 +83,14 @@ function describeQualifyingEvent(reason: string | null): string {
 export default function InviteHistory() {
   const [view, setView] = useState<"invites" | "rewards">("invites");
   const [page, setPage] = useState(1);
-  const [allInvites, setAllInvites] = useState<InviteRow[]>(MOCK_INVITES);
 
-  // Stand-in for useQuery with placeholderData: the previous page stays on
-  // screen while the next one loads.
-  const [data, setData] = useState<InvitesPage | undefined>(undefined);
-  const [error, setError] = useState<unknown>(null);
-  const [isFetching, setIsFetching] = useState(true);
-  const isLoading = data === undefined && !error;
-
-  useEffect(() => {
-    let cancelled = false;
-    fetchInvites(view, page, allInvites).then(
-      (result) => {
-        if (cancelled) return;
-        setData(result);
-        setIsFetching(false);
-      },
-      (err) => {
-        if (cancelled) return;
-        setError(err);
-        setIsFetching(false);
-      },
-    );
-    return () => {
-      cancelled = true;
-    };
-  }, [view, page, allInvites]);
-
-  // Mirrors SendInvite's queryClient.invalidateQueries({ queryKey: ["invites"] }).
-  useEffect(() => {
-    function onSent(e: Event) {
-      const sent = (e as CustomEvent<InviteRow[]>).detail;
-      setIsFetching(true);
-      setAllInvites((current) => [...sent, ...current]);
-    }
-    window.addEventListener(MOCK_INVITES_SENT_EVENT, onSent);
-    return () => window.removeEventListener(MOCK_INVITES_SENT_EVENT, onSent);
-  }, []);
-
-  function changePage(next: number) {
-    if (next === page) return;
-    setIsFetching(true);
-    setPage(next);
-  }
+  const { data, isLoading, error, isFetching } = useQuery({
+    queryKey: ["invites", view, page],
+    queryFn: () => fetchInvites(view, page),
+    placeholderData: (previous) => previous,
+  });
 
   function switchView(next: "invites" | "rewards") {
-    if (next === view && page === 1) return;
-    setIsFetching(true);
     setView(next);
     setPage(1);
   }
@@ -164,9 +123,7 @@ export default function InviteHistory() {
         </p>
       ) : !isLoading && rows.length === 0 ? (
         <div className="default-radius border border-dashed border-gray-200 bg-gray-50 p-16 text-center text-sm text-gray-500">
-          {view === "invites"
-            ? "Invites you send will appear here."
-            : "Rewards appear here for people you invite, and for the invite that brought you to Light Rider."}
+          {view === "invites" ? "No invites yet." : "No rewards yet."}
         </div>
       ) : (
         <>
@@ -261,7 +218,7 @@ export default function InviteHistory() {
               pageSize={data.pageSize}
               total={data.total}
               itemLabel={view === "invites" ? "invites" : "rewards"}
-              onPageChange={changePage}
+              onPageChange={setPage}
               disabled={isFetching}
             />
           )}

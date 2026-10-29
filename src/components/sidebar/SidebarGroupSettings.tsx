@@ -5,7 +5,6 @@ import {
   MdGroupAdd,
   MdHistory
 } from "react-icons/md";
-import { RiLockPasswordFill } from "react-icons/ri";
 import SidebarNavGroup from "./SidebarNavGroup";
 import SidebarNavItem from "./SidebarNavItem";
 
@@ -25,12 +24,6 @@ export default function SidebarGroupSettings({
               name="Account"
               href="/settings/account"
               icon={MdAccountCircle}
-              onNavigate={onNavigate}
-            />
-            <SidebarNavItem
-              name="API Keys"
-              href="/settings/keys"
-              icon={RiLockPasswordFill}
               onNavigate={onNavigate}
             />
 

@@ -2,16 +2,36 @@
 
 import HintIcon from "@/components/HintIcon";
 import LRButton from "@/components/ui/LRButton";
-import { getMockCredits, subscribeMockBilling } from "@/lib/mock/billing";
-import { useMockQuery } from "@/lib/mock/useMockQuery";
+import { useQuery } from "@tanstack/react-query";
 import Link from "next/link";
 import { MdArrowForward, MdLockOutline } from "react-icons/md";
 
-export type { Credits } from "@/lib/mock/billing";
+export type Credits = {
+  purchasedCents: number;
+  usedCents: number;
+  remainingCents: number;
+  /**
+   * Credits received from other customers via Share Credits. Display only —
+   * use `hasUnlocked` to decide whether anything is locked.
+   */
+  receivedTransferCents?: number;
+  /**
+   * Whether this account's credits are usable on real hardware: a purchase
+   * OR a received transfer. The single signal every gate and banner reads,
+   * mirroring hasUnlockedCredits() on the server.
+   *
+   * Optional, and callers must treat `undefined` as LOCKED: a response
+   * cached from before this field existed would otherwise read as unlocked
+   * and briefly offer real-hardware actions the server will refuse.
+   */
+  hasUnlocked?: boolean;
+};
 
-// TODO(backend): GET /api/billing/credits → { purchasedCents, usedCents, remainingCents, receivedTransferCents, hasUnlocked }
-export function useCredits() {
-  return useMockQuery(getMockCredits, "", subscribeMockBilling);
+export async function fetchJson<T>(url: string): Promise<T> {
+  const res = await fetch(url);
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.error ?? `HTTP ${res.status}`);
+  return data;
 }
 
 export function formatUsd(cents: number): string {
@@ -38,6 +58,10 @@ export function formatCredits(cents: number): string {
 /**
  * "N credits ($X.XX)" — the full (non-compact) credit count alongside its
  * dollar equivalent, for a specific price a customer is about to pay.
+ * formatCredits' compact notation (10K, 10M, …) is right for a running
+ * balance, but hides the real order of magnitude on a one-off price — at
+ * RESERVATION_MARKUP_MULTIPLIER=1.25, a 60-minute reservation is 450,000
+ * credits ($4,500), and "450K credits" alone is too easy to misread.
  */
 export function formatCreditsWithUsd(cents: number): string {
   return `${cents.toLocaleString()} credits ($${formatUsd(cents)})`;
@@ -56,16 +80,21 @@ export function ProgressBar({ fraction }: { fraction: number }) {
 }
 
 /**
- * Credit ledger balance, displayed as "Light Rider credits" — used on its
- * own on the Balance / Manage Credits pages and composed into UsageSummary
- * on the Billing page.
+ * Credit ledger balance, displayed as "Light Rider credits" — this is a
+ * display-label choice for the Pro-plan/billing context only (used on its
+ * own on the Payment page and composed into UsageSummary on the Billing
+ * page). The underlying CreditLedgerEntry/creditsBalanceCents fields, and
+ * the Purchase Credits page's own "compute credits" copy, are unchanged.
  */
 export default function CreditsSummary({
   historyLink = false,
 }: {
   historyLink?: boolean;
 }) {
-  const credits = useCredits();
+  const credits = useQuery({
+    queryKey: ["billing", "credits"],
+    queryFn: () => fetchJson<Credits>("/api/billing/credits"),
+  });
 
   if (!credits.data) {
     return (
@@ -80,7 +109,8 @@ export default function CreditsSummary({
   }
 
   // The signup grant is locked until the account is unlocked by a purchase
-  // or by receiving a transfer.
+  // or by receiving a transfer — the same `hasUnlocked` signal every gate
+  // reads, so this banner can never disagree with what the server allows.
   if (!credits.data.hasUnlocked) {
     return (
       <div className="default-radius border border-gray-50 bg-gray-50 p-4">

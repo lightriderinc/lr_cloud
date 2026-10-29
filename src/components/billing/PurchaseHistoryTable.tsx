@@ -1,16 +1,20 @@
 "use client";
 
 import { formatUsd } from "@/components/billing/CreditsSummary";
-import { mockDelay } from "@/lib/mock/delay";
-import { MOCK_PURCHASES, type PurchaseRow } from "@/lib/mock/payments";
-import { useEffect, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 
-export type { PurchaseRow };
+export interface PurchaseRow {
+  id: string;
+  amountCents: number;
+  type: "one_time" | "plan_credit";
+  createdAt: string;
+}
 
 async function fetchPurchases(): Promise<PurchaseRow[]> {
-  // TODO(backend): GET /api/billing/purchases
-  await mockDelay();
-  return MOCK_PURCHASES;
+  const res = await fetch("/api/billing/purchases");
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.error ?? `HTTP ${res.status}`);
+  return data.purchases ?? [];
 }
 
 const HEADERS = ["Date", "Description", "Amount"];
@@ -28,26 +32,14 @@ function PurchaseRowSkeleton() {
 }
 
 export default function PurchaseHistoryTable() {
-  const [purchases, setPurchases] = useState<PurchaseRow[] | undefined>(
-    undefined,
-  );
-  const [error, setError] = useState<unknown>(null);
-  const isLoading = purchases === undefined && !error;
-
-  useEffect(() => {
-    let cancelled = false;
-    fetchPurchases().then(
-      (rows) => {
-        if (!cancelled) setPurchases(rows);
-      },
-      (err) => {
-        if (!cancelled) setError(err);
-      },
-    );
-    return () => {
-      cancelled = true;
-    };
-  }, []);
+  const {
+    data: purchases,
+    isLoading,
+    error,
+  } = useQuery({
+    queryKey: ["billing", "purchases"],
+    queryFn: fetchPurchases,
+  });
 
   if (error) {
     return (
@@ -60,7 +52,7 @@ export default function PurchaseHistoryTable() {
   if (!isLoading && (!purchases || purchases.length === 0)) {
     return (
       <div className="default-radius border border-dashed border-gray-200 bg-gray-50 p-16 text-center mt-5 text-sm text-gray-500">
-        Your purchases will appear here once you buy compute credits.
+        No transactions yet.
       </div>
     );
   }

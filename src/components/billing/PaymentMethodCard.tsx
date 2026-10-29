@@ -1,14 +1,23 @@
 "use client";
 
-import { ManageBillingButton } from "@/components/billing/CheckoutButtons";
-import { mockDelay } from "@/lib/mock/delay";
-import { MOCK_PAYMENT_METHOD, type PaymentMethod } from "@/lib/mock/payments";
-import { useEffect, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { ManageBillingButton } from "./CheckoutButtons";
+
+type PaymentMethod =
+  | {
+      type: "card";
+      brand: string;
+      last4: string;
+      expMonth: number;
+      expYear: number;
+    }
+  | { type: "link"; email: string | null };
 
 async function fetchPaymentMethod(): Promise<PaymentMethod | null> {
-  // TODO(backend): GET /api/billing/payment-method (Stripe default payment method)
-  await mockDelay();
-  return MOCK_PAYMENT_METHOD;
+  const res = await fetch("/api/billing/payment-method");
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.error ?? `HTTP ${res.status}`);
+  return data.paymentMethod;
 }
 
 function formatBrand(brand: string): string {
@@ -27,25 +36,10 @@ function describe(paymentMethod: PaymentMethod): string {
 }
 
 export default function PaymentMethodCard() {
-  const [paymentMethod, setPaymentMethod] = useState<
-    PaymentMethod | null | undefined
-  >(undefined);
-  const [error, setError] = useState<unknown>(null);
-
-  useEffect(() => {
-    let cancelled = false;
-    fetchPaymentMethod().then(
-      (pm) => {
-        if (!cancelled) setPaymentMethod(pm);
-      },
-      (err) => {
-        if (!cancelled) setError(err);
-      },
-    );
-    return () => {
-      cancelled = true;
-    };
-  }, []);
+  const { data: paymentMethod, error } = useQuery({
+    queryKey: ["billing", "payment-method"],
+    queryFn: fetchPaymentMethod,
+  });
 
   return (
     <div className="default-radius border border-gray-50 bg-gray-50 p-4">

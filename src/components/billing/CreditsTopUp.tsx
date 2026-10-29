@@ -2,9 +2,11 @@
 
 import { CreditsCheckoutButton } from "@/components/billing/CheckoutButtons";
 import {
+  fetchJson,
   formatCredits,
-  useCredits,
+  type Credits,
 } from "@/components/billing/CreditsSummary";
+import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 
 const PRESETS = [5000, 10000, 25000, 100000];
@@ -19,7 +21,10 @@ export default function CreditsTopUp() {
   const [credits, setCredits] = useState(10000);
   const [customValue, setCustomValue] = useState("");
 
-  const balance = useCredits();
+  const balance = useQuery({
+    queryKey: ["billing", "credits"],
+    queryFn: () => fetchJson<Credits>("/api/billing/credits"),
+  });
 
   const priceUsd = credits * CREDIT_PRICE_USD;
   const customCredits = customValue === "" ? null : Number(customValue);

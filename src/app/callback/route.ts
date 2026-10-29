@@ -6,7 +6,10 @@ import {
   sanitizeReturnTo,
   silentReturnCookieName,
 } from '@/lib/auth/silent-sso';
-import { handleSignIn } from '@logto/next/server-actions';
+import { linkInviteOnSignIn } from '@/lib/billing/acceptInvite';
+import { INVITE_TOKEN_COOKIE } from '@/lib/billing/inviteCookie';
+import { getLogtoContext, handleSignIn } from '@logto/next/server-actions';
+import { isRedirectError } from 'next/dist/client/components/redirect-error';
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 import { NextRequest, NextResponse } from 'next/server';
@@ -86,12 +89,57 @@ export async function GET(request: NextRequest) {
     return NextResponse.redirect(target);
   }
 
-  await handleSignIn(logtoConfig, searchParams);
+  // The SDK finishes a sign-in that carried a postRedirectUri (every Log in
+  // click and silent check here; see app/actions/auth.ts) by THROWING Next's
+  // redirect to it. Hold that redirect until the invite linking below has run,
+  // so it still covers every sign-in, as in the Quantum app. Any other error
+  // is a real sign-in failure and propagates unchanged.
+  let pendingRedirect: unknown = null;
+  try {
+    await handleSignIn(logtoConfig, searchParams);
+  } catch (err) {
+    if (!isRedirectError(err)) throw err;
+    pendingRedirect = err;
+  }
 
-  // TODO(billing): link any invite this sign-in completes, as the Quantum
-  // app's /callback does (linkInviteOnSignIn + the INVITE_TOKEN_COOKIE set by
-  // /invite). It runs here, after handleSignIn, so the session exists and the
-  // Logto subject is readable. Needs Prisma and lib/billing, which come later.
+  // Link any invite this sign-in completes. Runs after handleSignIn so the
+  // session exists and the Logto subject is readable.
+  //
+  // Runs on EVERY sign-in, not only when the /invite cookie survived. The
+  // cookie is the precise signal but a fragile one — it has to survive a round
+  // trip to Logto — and when it is lost the referral is silently dropped.
+  // linkInviteOnSignIn falls back to matching a pending invite by email, but
+  // only for a brand-new account, so a returning user is never retro-linked.
+  //
+  // Best-effort: it swallows its own errors, and the cookie is cleared either
+  // way so a failed link can never wedge every later sign-in.
+  const cookieStore = await cookies();
+  const inviteToken = cookieStore.get(INVITE_TOKEN_COOKIE)?.value;
+  if (inviteToken) {
+    cookieStore.delete({ name: INVITE_TOKEN_COOKIE, path: '/' });
+  }
+  try {
+    const { claims } = await getLogtoContext(logtoConfig);
+    if (claims?.sub) {
+      await linkInviteOnSignIn({
+        token: inviteToken,
+        logtoUserId: claims.sub,
+        email: claims.email as string | undefined,
+      });
+    } else {
+      // Reading the session in the same request that just created it. If it
+      // comes back empty the invite silently never links, which is the single
+      // most likely explanation for a referral that vanished without a trace.
+      // Never diagnosable before, because this branch said nothing.
+      console.error(
+        `[callback] session not readable immediately after sign-in; invite linking skipped ` +
+          `(token present: ${Boolean(inviteToken)}). If an invite is stuck pending, this is why.`,
+      );
+    }
+  } catch (err) {
+    console.error('[callback] invite linking failed; sign-in unaffected:', err);
+  }
 
+  if (pendingRedirect) throw pendingRedirect;
   redirect('/');
 }

@@ -3,34 +3,6 @@ import PricingNavCard from "@/components/pricing/PricingNavCard";
 import { LuHandCoins } from "react-icons/lu";
 import { PiCoinsFill } from "react-icons/pi";
 
-const PRICING_PAGES = [
-  {
-    href: "/settings/manage-credits/purchase",
-    name: "Purchase Credits",
-    description:
-      "Pay for quantum runtime by the second when your applications or workflows use quantum resources.",
-  },
-  {
-    href: "/settings/manage-credits/user-plans",
-    name: "User Plans",
-    description:
-      "Monthly platform access for teams and individuals, with credits included.",
-  },
-  // Hidden for V2 (two-tier Basic/Pro simplification) — the /settings/manage-credits/api
-  // and /settings/manage-credits/enterprise routes/pages are untouched, just not linked
-  // from here for now. Uncomment to bring them back.
-  // {
-  //   href: "/settings/manage-credits/api",
-  //   name: "API Pricing",
-  //   description: "Usage-based pricing for Entropy-as-a-Service (EaaS) API calls.",
-  // },
-  // {
-  //   href: "/settings/manage-credits/enterprise",
-  //   name: "Enterprise & Government",
-  //   description: "Custom deployments, security, and SLAs for large organizations.",
-  // },
-];
-
 export default function PricingOverviewPage() {
   return (
     <div>
@@ -55,13 +27,6 @@ export default function PricingOverviewPage() {
           description="Send credits to other Light Rider users."
           icon={LuHandCoins}
         />
-
-        {/* <PricingNavCard
-          href="/settings/manage-credits/user-plans"
-          title="User Plans"
-          description="Monthly platform access for teams and individuals, with credits included."
-          icon={PiUserFocusFill}
-        /> */}
       </div>
     </div>
   );

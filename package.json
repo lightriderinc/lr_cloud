@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev -p 3000",
-    "build": "next build",
+    "build": "prisma generate && next build",
     "start": "next start",
     "lint": "eslint"
   },
@@ -19,7 +19,9 @@
     "@noble/hashes": "^2.4.0",
     "@prisma/client": "^6.19.3",
     "@supabase/supabase-js": "^2.118.0",
+    "@tanstack/react-query": "^5.105.0",
     "@types/mdx": "^2.0.14",
+    "jose": "^5.10.0",
     "lossless-json": "^4.3.3",
     "next": "16.4.2",
     "qrcode.react": "^4.2.0",
@@ -27,7 +29,8 @@
     "react-avatar-editor": "^15.2.0",
     "react-dom": "19.3.0",
     "react-icons": "^5.7.0",
-    "remark-gfm": "^4.0.1"
+    "remark-gfm": "^4.0.1",
+    "stripe": "22.3.2"
   },
   "devDependencies": {
     "@semantic-release/changelog": "^6.0.3",

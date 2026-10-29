@@ -1,4 +1,5 @@
 import { logtoConfig } from "@/app/logto";
+import { isSessionRevoked } from "@/lib/logto/backchannel-logout";
 import { getMyProfile } from "@/lib/logto-account";
 import { getAccessToken, getLogtoContext, type LogtoContext } from "@logto/next/server-actions";
 import { connection } from "next/server";
@@ -15,11 +16,11 @@ import { cache } from "react";
  * Falls back to signed-out on failure rather than throwing, so a Logto
  * hiccup degrades to a login prompt instead of crashing the whole layout.
  *
- * TODO(prisma): reject a session whose `sid` was revoked via back-channel
- * logout, as the Quantum app does (isSessionRevoked + RevokedLogtoSession).
- * Signing out of another app ends the shared Logto session but never touches
- * this app's own already-issued tokens, so until then a stale session here
- * keeps reading as authenticated until Logto rejects its token.
+ * Also rejects a session whose `sid` was revoked via back-channel logout
+ * (see @/lib/logto/backchannel-logout): signing out of another app ends the
+ * shared Logto session but never touches this app's own already-issued
+ * tokens, so without this check a stale session here would otherwise keep
+ * reading as authenticated until its token's own expiry.
  */
 export type SessionOutcome = {
   isAuthenticated: boolean;
@@ -55,6 +56,9 @@ const loadSession = cache(async (): Promise<{
   await connection();
   try {
     const context = await getLogtoContext(logtoConfig, { fetchUserInfo: true });
+    if (context.isAuthenticated && (await isSessionRevoked(context.claims?.sid as string | undefined))) {
+      return { context: { isAuthenticated: false }, indeterminate: false };
+    }
     return { context, indeterminate: false };
   } catch (err) {
     // Never swallowed silently — an unlogged failure here presents as "signed
@@ -106,8 +110,8 @@ function isStaleTokenError(err: unknown): boolean {
 /**
  * Resolves the current Logto session server-side. Throws if unauthenticated
  * so route handlers can fail fast with a 401 rather than silently acting on
- * behalf of no one. (The back-channel revocation check from getSession()'s
- * TODO belongs here too, once it exists.)
+ * behalf of no one. Also throws for a `sid` revoked via back-channel logout
+ * (see getSession() above) — same reasoning applies to routes as to pages.
  *
  * Deliberately does not go through `getSession()` above: this never requests
  * `fetchUserInfo`, so it never triggers a token refresh and doesn't need the
@@ -118,6 +122,9 @@ export async function requireLogtoUser() {
   await connection(); // See loadSession() above.
   const { isAuthenticated, claims } = await getLogtoContext(logtoConfig);
   if (!isAuthenticated || !claims?.sub) {
+    throw new Error("UNAUTHENTICATED");
+  }
+  if (await isSessionRevoked(claims.sid as string | undefined)) {
     throw new Error("UNAUTHENTICATED");
   }
   return { sub: claims.sub, email: claims.email as string | undefined };

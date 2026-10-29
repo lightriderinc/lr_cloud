@@ -1,17 +1,10 @@
 "use client";
 
-import { MOCK_INVITES_SENT_EVENT } from "@/components/billing/InviteHistory";
 import ModalShell from "@/components/ui/ModalShell";
 import LRButton from "@/components/ui/LRButton";
-import { mockDelay } from "@/lib/mock/delay";
-import {
-  MOCK_EXISTING_MEMBERS,
-  MOCK_INVITES,
-  MOCK_INVITE_QUOTA,
-  type InviteRow,
-} from "@/lib/mock/rewards";
-import { MOCK_USER } from "@/lib/mock/user";
-import { useCallback, useEffect, useState } from "react";
+import { useProtectedWork } from "@/lib/auth/protected-work";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useCallback, useState } from "react";
 import { MdAdd, MdClose } from "react-icons/md";
 import WarningBox from "../WarningBox";
 
@@ -25,13 +18,11 @@ import WarningBox from "../WarningBox";
  * having one pattern for both forms beats having two.
  *
  * Local row state is NEVER derived from, or reset by, the quota query. It
- * changes only on user input and on a successful send.
+ * changes only on user input and on a successful send. See useProtectedWork
+ * below for the other half of that guarantee.
  */
 
 const MAX_ROWS = 15; // matches INVITE_DAILY_LIMIT server-side
-
-/** Matches INVITE_TTL_DAYS server-side. */
-const INVITE_TTL_DAYS = 14;
 
 type RowResult =
   | { status: "ok"; email: string; expiresAt: string }
@@ -64,111 +55,62 @@ class InviteError extends Error {
 
 type FormRow = { id: string; email: string };
 
-// Counter instead of crypto.randomUUID(): ids are only React keys, and this
-// keeps the client component prerender-safe under cacheComponents.
-let nextRowId = 0;
 function blankRow(): FormRow {
-  nextRowId += 1;
-  return { id: `row-${nextRowId}`, email: "" };
+  return { id: crypto.randomUUID(), email: "" };
 }
 
-const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+async function postInvites(emails: string[]): Promise<BatchOk> {
+  const res = await fetch("/api/invites", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ emails }),
+  });
+  const data = await res.json().catch(() => ({}));
 
-async function postInvites(
-  emails: string[],
-  quota: Quota,
-): Promise<{ batch: BatchOk; created: InviteRow[] }> {
-  // TODO(backend): POST /api/invites { emails } (creates Invite + Referral rows and sends emails)
-  await mockDelay(900);
-
-  if (emails.length === 0) {
-    throw new InviteError({ code: "no_rows", message: "Add at least one email address." });
-  }
-  if (emails.length > quota.remainingToday) {
+  if (!res.ok) {
+    const known = ["rate_limited", "too_many_rows", "no_rows"];
     throw new InviteError({
-      code: "rate_limited",
-      message: `You can send ${quota.remainingToday} more invites today.`,
+      code: known.includes(data.error) ? data.error : "error",
+      message: data.message ?? data.error ?? `HTTP ${res.status}`,
     });
   }
 
-  const now = Date.now();
-  const createdAt = new Date(now).toISOString();
-  const expiresAt = new Date(now + INVITE_TTL_DAYS * 24 * 60 * 60 * 1000).toISOString();
-  const members = new Set(MOCK_EXISTING_MEMBERS.map((e) => e.toLowerCase()));
-  const pending = new Map(
-    MOCK_INVITES.filter((i) => i.status === "pending").map((i) => [
-      i.email.toLowerCase(),
-      i,
-    ]),
-  );
-
-  const rows: RowResult[] = [];
-  const created: InviteRow[] = [];
-  for (const email of emails) {
-    const key = email.toLowerCase();
-    if (!EMAIL_RE.test(email)) {
-      rows.push({ status: "invalid_email", email });
-    } else if (key === MOCK_USER.email.toLowerCase()) {
-      rows.push({ status: "self_invite", email });
-    } else if (members.has(key)) {
-      rows.push({ status: "already_member", email });
-    } else if (pending.has(key)) {
-      rows.push({ status: "already_invited", email, expiresAt: pending.get(key)!.expiresAt });
-    } else {
-      rows.push({ status: "ok", email, expiresAt });
-      created.push({
-        id: `inv_mock_${now}_${created.length}`,
-        email,
-        status: "pending",
-        createdAt,
-        expiresAt,
-        rewardCents: null,
-      });
-    }
-  }
-
-  return {
-    batch: {
-      ok: true,
-      rows,
-      sentCount: created.length,
-      remainingToday: quota.remainingToday - created.length,
-    },
-    created,
-  };
+  return data as BatchOk;
 }
 
 export default function SendInvite() {
-  const [rows, setRows] = useState<FormRow[]>(() => [blankRow()]);
+  const queryClient = useQueryClient();
+  const [rows, setRows] = useState<FormRow[]>([blankRow()]);
   const [reviewing, setReviewing] = useState(false);
 
-  // Stand-in for the quota useQuery (shared key ["invites", "invites", 1]).
-  const [quota, setQuota] = useState<Quota | undefined>(undefined);
-  const quotaLoading = quota === undefined;
+  // Shares a query key with the history table's "invites" view, so one
+  // invalidation refreshes the quota and the list together.
+  const quotaQuery = useQuery({
+    queryKey: ["invites", "invites", 1],
+    queryFn: async (): Promise<{ quota: Quota }> => {
+      const res = await fetch("/api/invites?view=invites&page=1");
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error ?? `HTTP ${res.status}`);
+      return data;
+    },
+  });
 
-  useEffect(() => {
-    let cancelled = false;
-    (async () => {
-      // TODO(backend): GET /api/invites?view=invites&page=1 (reads `quota`)
-      await mockDelay();
-      if (!cancelled) setQuota(MOCK_INVITE_QUOTA);
-    })();
-    return () => {
-      cancelled = true;
-    };
-  }, []);
+  const quota = quotaQuery.data?.quota;
 
-  // Stand-in for useMutation.
-  const [sendPending, setSendPending] = useState(false);
-  const [sendData, setSendData] = useState<BatchOk | undefined>(undefined);
-  const [sendError, setSendError] = useState<unknown>(null);
-  const sendSuccess = sendData !== undefined;
-  const sendIsError = sendError !== null;
-
-  function resetSend() {
-    setSendData(undefined);
-    setSendError(null);
-  }
+  const send = useMutation({
+    mutationFn: postInvites,
+    onSuccess: () => {
+      setRows([blankRow()]);
+      setReviewing(false);
+      queryClient.invalidateQueries({ queryKey: ["invites"] });
+    },
+    onError: () => {
+      // A partial batch can still have created rows, so the quota and list
+      // may have moved even though the request reported failure.
+      setReviewing(false);
+      queryClient.invalidateQueries({ queryKey: ["invites"] });
+    },
+  });
 
   // Deduped case-insensitively, mirroring dedupeEmails() on the server, so the
   // review step shows exactly what will be sent rather than a list the server
@@ -194,10 +136,16 @@ export default function SendInvite() {
     quota !== undefined &&
     payload.length > 0 &&
     !overQuota &&
-    !sendPending;
+    !send.isPending;
+
+  // Holds off the silent SSO check, which reloads the whole document. The
+  // DOM-level check in protected-work.ts covers the typed rows, but not the
+  // review modal or an in-flight send — the exact moment the state matters
+  // most.
+  useProtectedWork(payload.length > 0 || reviewing || send.isPending);
 
   function clearLastResult() {
-    if (sendSuccess || sendIsError) resetSend();
+    if (send.isSuccess || send.isError) send.reset();
     setReviewing(false);
   }
 
@@ -228,34 +176,13 @@ export default function SendInvite() {
     setReviewing(true);
   }
 
-  async function handleConfirm() {
-    if (sendPending || !quota) return;
-    resetSend();
-    setSendPending(true);
-    try {
-      const { batch, created } = await postInvites(payload, quota);
-      setSendData(batch);
-      setRows([blankRow()]);
-      setReviewing(false);
-      setQuota({
-        ...quota,
-        usedToday: quota.usedToday + batch.sentCount,
-        remainingToday: batch.remainingToday,
-      });
-      if (created.length > 0) {
-        window.dispatchEvent(
-          new CustomEvent(MOCK_INVITES_SENT_EVENT, { detail: created }),
-        );
-      }
-    } catch (err) {
-      setSendError(err);
-      setReviewing(false);
-    } finally {
-      setSendPending(false);
-    }
+  function handleConfirm() {
+    if (send.isPending) return;
+    send.mutate(payload);
   }
 
-  const failure = sendError instanceof InviteError ? sendError.failure : null;
+  const failure =
+    send.error instanceof InviteError ? send.error.failure : null;
 
   const inviteLabel = `${payload.length} ${payload.length === 1 ? "invite" : "invites"}`;
 
@@ -265,7 +192,7 @@ export default function SendInvite() {
         <h2 className="text-lg font-semibold text-gray-800">Send invites</h2>
         <div className="inline-flex">
           <span className="text-sm">Invites left today:</span>
-          {quotaLoading ? (
+          {quotaQuery.isLoading ? (
             <span className="ml-1 h-5 w-12 animate-pulse rounded bg-gray-200" />
           ) : (
             <span className="ml-1 text-sm font-medium">
@@ -329,6 +256,12 @@ export default function SendInvite() {
           )}
         </div>
 
+        {/* <div className="mb-4">
+          <WarningBox>
+            Sent invites can not be unsent.
+          </WarningBox>
+        </div> */}
+
         <LRButton
           variant="primary"
           type="submit"
@@ -339,18 +272,18 @@ export default function SendInvite() {
         </LRButton>
       </form>
 
-      {sendSuccess && sendData && (
+      {send.isSuccess && send.data && (
         <p className="mt-3 text-sm text-green-700">
-          {sendData.sentCount > 0
-            ? `Sent ${sendData.sentCount} ${sendData.sentCount === 1 ? "invite" : "invites"}. ${sendData.remainingToday} left today.`
+          {send.data.sentCount > 0
+            ? `Sent ${send.data.sentCount} ${send.data.sentCount === 1 ? "invite" : "invites"}. ${send.data.remainingToday} left today.`
             : "No new invites were sent. See the details below."}
         </p>
       )}
 
       {failure && <p className="mt-3 text-sm text-red-600">{failure.message}</p>}
 
-      {sendData?.rows && sendData.rows.length > 0 && (
-        <RowResults rows={sendData.rows} />
+      {send.data?.rows && send.data.rows.length > 0 && (
+        <RowResults rows={send.data.rows} />
       )}
 
       {reviewing && (
@@ -358,7 +291,7 @@ export default function SendInvite() {
           emails={payload}
           inviteLabel={inviteLabel}
           remaining={remaining}
-          isPending={sendPending}
+          isPending={send.isPending}
           onConfirm={handleConfirm}
           onCancel={() => setReviewing(false)}
         />
