@@ -31,13 +31,13 @@ export async function GET() {
       reason: { not: "signup_credit" },
       // Credits received from another customer, and referral rewards, belong
       // in the Share Credits "Received" history — not in the purchase list,
-      // where they would render as "Compute credit purchase".
+      // where they would render as "Credit purchase".
       NOT: {
         OR: [
           { reason: { startsWith: TRANSFER_RECEIVED_PREFIX } },
           { reason: { startsWith: REFERRAL_REWARD_PREFIX } },
           // Entropy refunds return credits an undelivered draw had spent;
-          // they would otherwise render as "Compute credit purchase".
+          // they would otherwise render as "Credit purchase".
           { reason: { startsWith: ENTROPY_REFUND_PREFIX } },
         ],
       },

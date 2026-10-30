@@ -123,7 +123,7 @@ export default function CreditsSummary({
         </p>
         <div className="flex mt-6">
           <a href="/settings/manage-credits/purchase">
-            <LRButton variant="primary">Purchase compute credits</LRButton>
+            <LRButton variant="primary">Purchase credits</LRButton>
           </a>
         </div>
       </div>
@@ -144,7 +144,7 @@ export default function CreditsSummary({
 
       <div className="flex w-full justify-between items-end mt-8">
         <a href="/settings/manage-credits/purchase">
-          <LRButton variant="primary">Purchase compute credits</LRButton>
+          <LRButton variant="primary">Purchase credits</LRButton>
         </a>
         {historyLink && (
           <Link

@@ -64,3 +64,25 @@ export async function readJson(request: Request): Promise<Record<string, unknown
   const body = await request.json().catch(() => null);
   return body && typeof body === "object" ? (body as Record<string, unknown>) : {};
 }
+
+/**
+ * Origins Stripe may send an entropy user back to (Checkout and the Customer
+ * Portal): the entropy platform's own deployments, one list per environment
+ * (ENTROPY_CHECKOUT_RETURN_ORIGINS, comma-separated origins like
+ * "https://entropy.lightriderinc.com"). Only an exact origin on the list is
+ * accepted, so this can never be turned into an open redirect.
+ */
+export function allowedEntropyReturnOrigin(raw: unknown): string | null {
+  if (typeof raw !== "string") return null;
+  let origin: string;
+  try {
+    origin = new URL(raw).origin;
+  } catch {
+    return null;
+  }
+  const allowed = (process.env.ENTROPY_CHECKOUT_RETURN_ORIGINS ?? "")
+    .split(",")
+    .map((s) => s.trim().replace(/\/$/, ""))
+    .filter(Boolean);
+  return allowed.includes(origin) ? origin : null;
+}

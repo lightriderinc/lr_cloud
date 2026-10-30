@@ -83,7 +83,7 @@ export default function PurchaseHistoryTable() {
                   <td className="whitespace-nowrap px-4 py-3 text-gray-700">
                     {purchase.type === "plan_credit"
                       ? "Plan credit"
-                      : "Compute credit purchase"}
+                      : "Credit purchase"}
                   </td>
                   <td className="whitespace-nowrap px-4 py-3 text-gray-700">
                     ${formatUsd(purchase.amountCents)}

@@ -1,50 +1,100 @@
 "use client";
 
 import LRButton from "@/components/ui/LRButton";
+import { useState } from "react";
 
-// Stripe Checkout and the Customer Portal are not wired up in Cloud yet, so
-// both buttons render disabled with a short "coming soon" note. Light Rider
-// sells one-time credit purchases only, so there is no subscription checkout.
-// The prop signatures match the Quantum app's CreditsCheckoutButton and
-// ManageBillingButton (POST /api/billing/checkout/credits, /api/billing/portal),
-// so those drop in unchanged once the routes move here.
+// Light Rider sells one-time credit purchases only, so there is no subscription
+// checkout. Both buttons tell the server which page they were clicked on, and
+// Stripe sends the user back there (see lib/billing/returnUrl.ts).
 
-function ComingSoon() {
-  return <p className="text-xs text-gray-500">Coming soon</p>;
+/** Path (and query) of the page the user is on, for Stripe to return to. */
+function currentPath(): string {
+  return `${window.location.pathname}${window.location.search}`;
 }
 
-/** Stripe Checkout for a one-time compute-credits top-up. Disabled until checkout moves to Cloud. */
+/** Redirects to Stripe Checkout for a one-time credits top-up. */
 export function CreditsCheckoutButton({
+  amountUsd,
   label,
   className,
+  disabled,
 }: {
   amountUsd: number;
   label: string;
   className?: string;
   disabled?: boolean;
 }) {
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  async function handleClick() {
+    setLoading(true);
+    setError(null);
+    try {
+      const res = await fetch("/api/billing/checkout/credits", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ amountUsd, returnTo: currentPath() }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error ?? `HTTP ${res.status}`);
+      window.open(data.url, "_blank", "noopener,noreferrer");
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Something went wrong.");
+    } finally {
+      setLoading(false);
+    }
+  }
+
   return (
     <div className="flex flex-col gap-1">
-      <LRButton disabled variant="primary" className={className ?? "w-full"}>
-        {label}
+      <LRButton
+        onClick={handleClick}
+        disabled={loading || disabled}
+        variant="primary"
+        className={className ?? "w-full"}
+      >
+        {loading ? "Redirecting…" : label}
       </LRButton>
-      <ComingSoon />
+      {error && <p className="text-xs text-red-600">{error}</p>}
     </div>
   );
 }
 
-/** Stripe Customer Portal. Disabled until the portal moves to Cloud. */
+/** Sends the signed-in user to the Stripe Customer Portal. */
 export function ManageBillingButton({ className }: { className?: string }) {
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  async function handleClick() {
+    setLoading(true);
+    setError(null);
+    try {
+      const res = await fetch("/api/billing/portal", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ returnTo: currentPath() }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error ?? `HTTP ${res.status}`);
+      window.location.href = data.url;
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Something went wrong.");
+      setLoading(false);
+    }
+  }
+
   return (
     <div className="flex flex-col gap-1">
       <LRButton
-        disabled
+        onClick={handleClick}
+        disabled={loading}
         variant="secondary"
         className={className ?? "min-w-[110px] w-full"}
       >
-        Manage billing
+        {loading ? "Loading…" : "Manage billing"}
       </LRButton>
-      <ComingSoon />
+      {error && <p className="text-xs text-red-600">{error}</p>}
     </div>
   );
 }

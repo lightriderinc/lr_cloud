@@ -1,6 +1,10 @@
 import { NextResponse } from "next/server";
 import { createCheckoutSession } from "@/lib/billing/customer";
-import { readJson, withEntropyCustomer } from "@/lib/billing/entropyInternal";
+import {
+  allowedEntropyReturnOrigin,
+  readJson,
+  withEntropyCustomer,
+} from "@/lib/billing/entropyInternal";
 
 // No `runtime`/`dynamic` exports: cacheComponents rejects them, Node.js is the
 // default runtime, and every request here reads headers so it is never cached.
@@ -8,27 +12,6 @@ import { readJson, withEntropyCustomer } from "@/lib/billing/entropyInternal";
 // Same limits as /api/billing/checkout/credits.
 const MIN_TOPUP_USD = 5;
 const MAX_TOPUP_USD = 10_000;
-
-/**
- * Origins a checkout may return to: the entropy platform's own deployments,
- * one list per environment (ENTROPY_CHECKOUT_RETURN_ORIGINS, comma-separated
- * origins like "https://entropy.lightriderinc.com"). Only an exact origin on
- * the list is accepted, so this can never be turned into an open redirect.
- */
-function allowedOrigin(raw: unknown): string | null {
-  if (typeof raw !== "string") return null;
-  let origin: string;
-  try {
-    origin = new URL(raw).origin;
-  } catch {
-    return null;
-  }
-  const allowed = (process.env.ENTROPY_CHECKOUT_RETURN_ORIGINS ?? "")
-    .split(",")
-    .map((s) => s.trim().replace(/\/$/, ""))
-    .filter(Boolean);
-  return allowed.includes(origin) ? origin : null;
-}
 
 /**
  * POST /api/internal/entropy/checkout  (entropy platform server only)
@@ -50,7 +33,7 @@ export async function POST(request: Request) {
         { status: 400 },
       );
     }
-    const origin = allowedOrigin(body.returnOrigin);
+    const origin = allowedEntropyReturnOrigin(body.returnOrigin);
     if (!origin) {
       return NextResponse.json({ error: "returnOrigin is not an allowed entropy origin." }, { status: 400 });
     }

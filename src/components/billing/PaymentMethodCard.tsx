@@ -57,8 +57,7 @@ export default function PaymentMethodCard() {
       )}
       <div className="flex flex-col gap-3 mt-6">
         <p className="text-sm text-gray-600">
-          Update your payment method, view invoices, or change plans in the
-          billing portal.
+          Update your payment method or view invoices in the billing portal.
         </p>
         <div className="flex">
           <ManageBillingButton />
