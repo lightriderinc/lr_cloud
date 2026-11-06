@@ -1,7 +1,7 @@
 import { handleSignIn } from "@/app/actions/auth";
 import LoginButton from "@/components/auth/LoginButton";
 import LRLinkButton from "@/components/ui/LRLinkButton";
-import { getSession } from "@/lib/auth/session";
+import { getIsAuthenticated } from "@/lib/auth/session";
 import { SOLUTIONS, type SolutionSlug } from "@/lib/solutions";
 import { Suspense } from "react";
 import { MdArrowForward } from "react-icons/md";
@@ -24,7 +24,8 @@ export default function GetStartedActions({ solution }: GetStartedActionsProps) 
 }
 
 async function GetStartedButton({ solution }: GetStartedActionsProps) {
-  const { isAuthenticated } = await getSession();
+  // Cookie-only check: no Logto userinfo round trip, so this streams in fast.
+  const isAuthenticated = await getIsAuthenticated();
 
   if (!isAuthenticated) {
     return (

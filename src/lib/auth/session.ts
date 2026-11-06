@@ -93,6 +93,28 @@ export const getSessionOutcome = cache(async (): Promise<SessionOutcome> => {
 });
 
 /**
+ * Cookie-only "is anyone signed in?" check for UI that just needs a yes/no,
+ * such as a call-to-action button. Unlike getSession() it skips
+ * `fetchUserInfo`, so there is no network call to Logto and no token
+ * refresh (and therefore no `invalid_grant` race with getSession()); the
+ * only I/O is the back-channel revocation lookup. That keeps anything
+ * streamed behind it from waiting on a Logto round trip.
+ *
+ * Not for authorization: API routes keep using requireLogtoUser().
+ */
+export const getIsAuthenticated = cache(async (): Promise<boolean> => {
+  await connection(); // See loadSession() above.
+  try {
+    const { isAuthenticated, claims } = await getLogtoContext(logtoConfig);
+    if (!isAuthenticated) return false;
+    return !(await isSessionRevoked(claims?.sid as string | undefined));
+  } catch (err) {
+    console.error("[auth] cookie session check failed; treating as signed out:", err);
+    return false;
+  }
+});
+
+/**
  * Whether an error from Logto means "this token is no longer good" (revoked,
  * expired, or belonging to an ended session) as opposed to a real fault like
  * Logto being unreachable. Both still read as signed out; they differ only in
