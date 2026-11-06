@@ -1,9 +1,12 @@
+import SessionSync from "@/components/auth/SessionSync";
 import Header from "@/components/Header";
 import SidebarSecondary from "@/components/sidebar/SidebarSecondary";
 import SidebarSecondaryGate from "@/components/sidebar/SidebarSecondaryGate";
 import type { Metadata } from "next";
 import { IBM_Plex_Mono, IBM_Plex_Sans, Science_Gothic } from "next/font/google";
 import { Suspense, type ReactNode } from "react";
+import { getSession } from "@/lib/auth/session";
+import Providers from "./providers";
 import "./globals.css";
 
 const ibmPlexSans = IBM_Plex_Sans({
@@ -36,22 +39,34 @@ export default function RootLayout({
       className={`${ibmPlexSans.variable} ${ibmPlexMono.variable} ${scienceGothic.variable} h-full antialiased`}
     >
       <body className="h-full flex flex-col overflow-hidden">
-        <Header />
-        <div className="flex flex-1 min-h-0">
-          <SidebarSecondaryGate>
-            <Suspense
-              fallback={
-                <aside className="hidden w-56 shrink-0 border-r border-gray-100 lg:flex" />
-              }
-            >
-              <SidebarSecondary />
-            </Suspense>
-          </SidebarSecondaryGate>
-          <main className="flex-1 overflow-y-auto px-4 py-6 lg:px-8">
-            {children}
-          </main>
-        </div>
+        <Providers>
+          <Suspense fallback={null}>
+            <SessionSyncWithSession />
+          </Suspense>
+          <Header />
+          <div className="flex flex-1 min-h-0">
+            <SidebarSecondaryGate>
+              <Suspense
+                fallback={
+                  <aside className="hidden w-56 shrink-0 border-r border-gray-100 lg:flex" />
+                }
+              >
+                <SidebarSecondary />
+              </Suspense>
+            </SidebarSecondaryGate>
+            <main className="flex-1 overflow-y-auto px-4 py-6 lg:px-8">
+              {children}
+            </main>
+          </div>
+        </Providers>
       </body>
     </html>
   );
+}
+
+// Reads the session for SessionSync's baseline behind its own Suspense
+// boundary, so the layout itself never awaits a request read (cacheComponents).
+async function SessionSyncWithSession() {
+  const { isAuthenticated } = await getSession();
+  return <SessionSync initialAuthenticated={isAuthenticated} />;
 }

@@ -1,30 +1,93 @@
 import { handleSignOut } from "@/app/actions/auth";
+import { logtoConfig } from "@/app/logto";
 import LogoutButton from "@/components/auth/LogoutButton";
 import ConnectedAccounts from "@/components/profile/ConnectedAccounts";
-import { getDisplayName, getSession } from "@/lib/auth/session";
-import { resolveAvatarSources } from "@/lib/avatar";
+import ProfileAvatar from "@/components/profile/ProfileAvatar";
+import { attempt, type ActionResult } from "@/lib/actionResult";
+import { validateBirthdate } from "@/lib/birthdate";
+import { AVATAR_FORM_FIELD, resolveAvatarSources } from "@/lib/avatar";
 import {
-  MOCK_BIRTHDATE,
-  MOCK_HAS_PASSWORD,
-  MOCK_MFA_ENABLED,
-  MOCK_SOCIAL_IDENTITIES,
-} from "@/lib/mock/account";
-import AccountAvatar from "./AccountAvatar";
+  getAccountProfile,
+  getDisplayName,
+  getSession,
+  requireLogtoUser,
+} from "@/lib/auth/session";
+import {
+  bindTotp,
+  deleteMfaVerification,
+  generateTotpSecret,
+  getMfaVerifications,
+  normalizeSocialIdentities,
+  sendEmailCode,
+  updateAvatar,
+  updateBirthdate,
+  updatePassword,
+  updatePrimaryEmail,
+  verifyEmailCode,
+  verifyPassword,
+} from "@/lib/logto-account";
+import { deleteAvatar, uploadAvatar } from "@/lib/supabase/avatars";
+import {
+  findUserByPrimaryEmail,
+  getUserAccountFacts,
+  isManagementApiConfigured,
+  type LogtoUserSummary,
+} from "@/lib/logto/management";
+import { getAccessToken } from "@logto/next/server-actions";
+import { refresh, revalidatePath } from "next/cache";
 import ProfileActions from "./ProfileActions";
 
+/** Account page. Copied from the Quantum app's /settings/account. */
 export default async function AccountPage() {
-  const { userInfo } = await getSession();
+  const { userInfo, claims } = await getSession();
 
+  // Resolve the display name via the shared resolver so a brand-new user's full
+  // name shows on first sign-in (session claims lag until the first refresh; the
+  // Account API reflects it immediately). getAccountProfile is cached, so this
+  // and getDisplayName share a single Account API fetch per request.
   const name = await getDisplayName();
-  // TODO(backend): getAccountProfile() via Logto Account API (GET /api/my-account) for profile.birthdate
-  const birthdate = MOCK_BIRTHDATE;
+  const account = await getAccountProfile();
+  const birthdate = account?.profile?.birthdate ?? null;
 
-  // TODO(backend): getUserAccountFacts(sub) via Logto Management API (GET /api/users/{id}) for identities + hasPassword, falling back to the Account API
-  const hasPassword = MOCK_HAS_PASSWORD;
-  const socialIdentities = MOCK_SOCIAL_IDENTITIES;
+  // Linked socials + password status.
+  //
+  // The end-user Account API (`/api/my-account`) only returns `identities` /
+  // `hasPassword` when the Logto Account Center `fields` config exposes them,
+  // so relying on it leaves social users with an empty "Connected accounts"
+  // section. The Management API (`GET /api/users/{id}`) returns both fields
+  // unconditionally, so we use it as the primary source and fall back to the
+  // Account API values only if the M2M lookup fails.
+  //
+  // hasPassword defaults to true on total failure, preserving the existing
+  // change-password behavior for password users on a transient error.
+  const sub = claims?.sub ?? userInfo?.sub ?? null;
+  let hasPassword = account?.hasPassword ?? true;
+  let socialIdentities = normalizeSocialIdentities(account?.identities);
+  if (sub && isManagementApiConfigured()) {
+    try {
+      const facts = await getUserAccountFacts(sub);
+      socialIdentities = normalizeSocialIdentities(facts.identities);
+      if (facts.hasPassword !== null) {
+        hasPassword = facts.hasPassword;
+      }
+    } catch (err) {
+      console.error(
+        "[account] failed to load identities/password via Management API; using Account API fallback:",
+        err,
+      );
+    }
+  }
 
-  // TODO(backend): getMfaVerifications(token) via Logto Account API; enabled when a "Totp" factor exists
-  const mfaEnabled = MOCK_MFA_ENABLED;
+  let mfaEnabled = false;
+  try {
+    const token = await getAccessToken(logtoConfig);
+    if (token) {
+      const mfaFactors = await getMfaVerifications(token);
+      mfaEnabled = mfaFactors.some((factor) => factor.type === "Totp");
+    }
+  } catch {
+    // Account API not enabled or token unavailable
+  }
 
   const email = userInfo?.email ?? null;
   // Shared resolver — the header's UserCard uses the same one, so the two
@@ -36,6 +99,221 @@ export default async function AccountPage() {
       email,
     });
 
+  // Returns rather than throws: a wrong password is an expected answer, and a
+  // thrown one is replaced by Next's generic sanitized message in production.
+  // See lib/actionResult.ts.
+  async function doVerifyPassword(
+    password: string,
+  ): Promise<ActionResult<string>> {
+    "use server";
+    return attempt(async () => {
+      const token = await getAccessToken(logtoConfig);
+      return verifyPassword(token, password);
+    }, "Incorrect password. Please check your input.");
+  }
+
+  async function doUpdatePassword(
+    verificationId: string,
+    newPassword: string,
+  ): Promise<ActionResult<void>> {
+    "use server";
+    return attempt(async () => {
+      const token = await getAccessToken(logtoConfig);
+      await updatePassword(token, verificationId, newPassword);
+    }, "Could not update your password. Please try again.");
+  }
+
+  /**
+   * Pre-flight duplicate-email check for the change-email flow. Runs BEFORE any
+   * verification code is sent, so the user is warned up front instead of only
+   * after verifying an address they can't actually use (bug EM-02).
+   *
+   * Throws a user-facing message on conflict; the modal surfaces it inline and
+   * stays on the "enter new email" step. Fails open on lookup errors — the
+   * Account API still enforces uniqueness when the change is finalized, so an
+   * infra hiccup in this pre-check never blocks a legitimate change.
+   *
+   * Note: confirming whether an email is registered is account enumeration.
+   * This matches the platform's existing sign-up behavior, and can be masked
+   * later via Logto's "Hide account existence" setting if desired.
+   */
+  async function doCheckEmailAvailability(
+    emailAddr: string,
+  ): Promise<ActionResult<void>> {
+    "use server";
+    return attempt(async () => {
+      const candidate = emailAddr.trim();
+      const { sub } = await requireLogtoUser();
+
+      let existing: LogtoUserSummary | null = null;
+      try {
+        existing = await findUserByPrimaryEmail(candidate);
+      } catch (err) {
+        console.error(
+          "[account] email availability pre-check failed; allowing flow to continue:",
+          err,
+        );
+        return;
+      }
+
+      if (!existing) return; // available
+      if (existing.id === sub) {
+        throw new Error("That's already the email address on your account.");
+      }
+      throw new Error("That email is already linked to another account.");
+    });
+  }
+
+  async function doSendEmailCode(
+    emailAddr: string,
+  ): Promise<ActionResult<string>> {
+    "use server";
+    return attempt(async () => {
+      const token = await getAccessToken(logtoConfig);
+      return sendEmailCode(token, emailAddr);
+    }, "Could not send the verification code. Please try again.");
+  }
+
+  async function doVerifyEmailCode(
+    emailAddr: string,
+    code: string,
+    verificationRecordId: string,
+  ): Promise<ActionResult<string>> {
+    "use server";
+    return attempt(async () => {
+      const token = await getAccessToken(logtoConfig);
+      return verifyEmailCode(token, emailAddr, code, verificationRecordId);
+    }, "That code is not valid. Please check it and try again.");
+  }
+
+  async function doUpdateEmail(
+    currentVerifId: string,
+    newVerifId: string,
+    emailAddr: string,
+  ): Promise<ActionResult<void>> {
+    "use server";
+    return attempt(async () => {
+      const token = await getAccessToken(logtoConfig);
+      await updatePrimaryEmail(token, currentVerifId, newVerifId, emailAddr);
+    }, "Could not update your email. Please try again.");
+  }
+
+  /**
+   * Saves a directly-pasted image URL onto the Logto user record. This is the
+   * "Image URL" tab of the avatar modal, and it's also the second half of the
+   * upload flow — once a cropped file lands in storage, its public URL gets
+   * written here the same way.
+   */
+  async function doUpdateAvatarUrl(avatarUrl: string): Promise<void> {
+    "use server";
+    const token = await getAccessToken(logtoConfig);
+    await updateAvatar(token, avatarUrl);
+    // "layout" scope, not the usual "/settings/account": the avatar also
+    // renders in the header UserCard, which lives in the root layout.
+    // Revalidating just this page leaves the header showing the old picture
+    // until a full reload.
+    revalidatePath("/", "layout");
+    refresh();
+  }
+
+  /**
+   * Uploads the cropped avatar to Supabase Storage, then writes the
+   * resulting public URL onto the Logto user the same way the "Image URL"
+   * tab does. requireLogtoUser()'s own error ("UNAUTHENTICATED") isn't
+   * user-facing, so it's caught and rethrown with a friendlier message here
+   * rather than changed at the shared helper.
+   */
+  async function doUploadAvatar(formData: FormData): Promise<string> {
+    "use server";
+    let sub: string;
+    try {
+      ({ sub } = await requireLogtoUser());
+    } catch {
+      throw new Error("You must be signed in to upload an avatar.");
+    }
+
+    const file = formData.get(AVATAR_FORM_FIELD);
+    if (!(file instanceof File)) {
+      throw new Error("No image was received. Try again.");
+    }
+
+    const url = await uploadAvatar(sub, file);
+    await doUpdateAvatarUrl(url); // writes to Logto + revalidates
+    return url;
+  }
+
+  /**
+   * Removes the user's avatar: best-effort delete of the stored object, then
+   * clears the avatar field on the Logto user so it falls back to the generated
+   * default. Storage cleanup failures are logged but don't block clearing the
+   * profile — a leftover object is harmless and gets overwritten on next upload.
+   */
+  async function doRemoveAvatar(): Promise<void> {
+    "use server";
+    let sub: string;
+    try {
+      ({ sub } = await requireLogtoUser());
+    } catch {
+      throw new Error("You must be signed in to remove your avatar.");
+    }
+
+    try {
+      await deleteAvatar(sub);
+    } catch (err) {
+      console.error("[account] avatar delete failed:", err);
+    }
+
+    // Logto validates `avatar` as a URL, so an empty string is rejected as an
+    // invalid body — null is what clears the field.
+    const token = await getAccessToken(logtoConfig);
+    await updateAvatar(token, null);
+    // "layout" scope so the header UserCard (in the root layout) updates too.
+    revalidatePath("/", "layout");
+    refresh();
+  }
+
+  async function doUpdateBirthdate(
+    birthdate: string,
+  ): Promise<ActionResult<void>> {
+    "use server";
+    return attempt(async () => {
+      // Re-checked here, not just in the form: min/max on a date input is a
+      // convenience the caller can bypass entirely.
+      const problem = validateBirthdate(birthdate);
+      if (problem) throw new Error(problem);
+
+      const token = await getAccessToken(logtoConfig);
+      await updateBirthdate(token, birthdate);
+    }, "Could not save your date of birth. Please try again.");
+  }
+
+  async function doGenerateTotpSecret(): Promise<string> {
+    "use server";
+    const token = await getAccessToken(logtoConfig);
+    return generateTotpSecret(token);
+  }
+
+  async function doBindTotp(
+    verificationRecordId: string,
+    secret: string,
+    code: string,
+  ): Promise<void> {
+    "use server";
+    const token = await getAccessToken(logtoConfig);
+    await bindTotp(token, verificationRecordId, secret, code);
+    revalidatePath("/settings/account");
+  }
+
+  async function doDisableMfa(verificationRecordId: string): Promise<void> {
+    "use server";
+    const token = await getAccessToken(logtoConfig);
+    const factors = await getMfaVerifications(token);
+    for (const factor of factors) {
+      await deleteMfaVerification(token, verificationRecordId, factor.id);
+    }
+    revalidatePath("/settings/account");
+  }
+
   return (
     <div className="animate-fade-in-up">
       <h1 className="text-2xl font-semibold text-gray-700">
@@ -46,10 +324,14 @@ export default async function AccountPage() {
       </p>
 
       <div className="flex items-center gap-4 mb-12">
-        <AccountAvatar
+        <ProfileAvatar
           src={customAvatarUrl}
           fallbackSrc={generatedAvatarUrl}
           name={name || email || "Your account"}
+          size={64}
+          onUpdateAvatarUrl={doUpdateAvatarUrl}
+          onUploadAvatar={doUploadAvatar}
+          onRemoveAvatar={doRemoveAvatar}
         />
         <div className="min-w-0">
           {name && (
@@ -57,7 +339,6 @@ export default async function AccountPage() {
               {name}
             </p>
           )}
-          {/* <CurrentPlanBadge /> */}
         </div>
       </div>
 
@@ -68,10 +349,19 @@ export default async function AccountPage() {
         mfaEnabled={mfaEnabled}
         hasPassword={hasPassword}
         connectedAccounts={<ConnectedAccounts identities={socialIdentities} />}
+        onVerifyPassword={doVerifyPassword}
+        onUpdatePassword={doUpdatePassword}
+        onSendEmailCode={doSendEmailCode}
+        onVerifyEmailCode={doVerifyEmailCode}
+        onCheckEmailAvailable={doCheckEmailAvailability}
+        onUpdateEmail={doUpdateEmail}
+        onUpdateBirthdate={doUpdateBirthdate}
+        onGenerateTotpSecret={doGenerateTotpSecret}
+        onBindTotp={doBindTotp}
+        onDisableMfa={doDisableMfa}
       />
 
       <div className="mt-6">
-        {/* TODO(backend): signOut(logtoConfig) via @logto/next/server-actions (handleSignOut is a mock no-op) */}
         <LogoutButton onSignOut={handleSignOut} />
       </div>
     </div>

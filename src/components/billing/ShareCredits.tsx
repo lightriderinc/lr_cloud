@@ -1,18 +1,17 @@
 "use client";
 
-import { formatCredits, useCredits } from "@/components/billing/CreditsSummary";
 import ModalShell from "@/components/ui/ModalShell";
-import LRButton from "@/components/ui/LRButton";
-import WarningBox from "@/components/WarningBox";
 import {
-  getMockCredits,
-  MOCK_UNREGISTERED_EMAILS,
-  recordMockTransfers,
-} from "@/lib/mock/billing";
-import { mockDelay } from "@/lib/mock/delay";
-import { MOCK_USER } from "@/lib/mock/user";
-import { useCallback, useRef, useState } from "react";
+  fetchJson,
+  formatCredits,
+  type Credits,
+} from "@/components/billing/CreditsSummary";
+import LRButton from "@/components/ui/LRButton";
+import { useProtectedWork } from "@/lib/auth/protected-work";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useCallback, useState } from "react";
 import { MdAdd, MdClose } from "react-icons/md";
+import WarningBox from "../WarningBox";
 
 /**
  * Send credits to one or more Light Rider users by email.
@@ -23,9 +22,10 @@ import { MdAdd, MdClose } from "react-icons/md";
  * to pay five people.
  *
  * Amounts are entered as whole credits; the API takes whole credits too and
- * converts at its own boundary, so nothing here multiplies or divides. The
- * balance comes from the same mock credits store CreditsSummary reads, so a
- * successful send refreshes every credit display on the page at once.
+ * converts at its own boundary (see lib/billing/transferCredits.ts), so
+ * nothing here multiplies or divides. The live balance comes from the same
+ * ["billing", "credits"] query CreditsSummary uses, so a successful send
+ * refreshes every credit display on the page at once.
  */
 
 const MAX_ROWS = 20;
@@ -70,118 +70,58 @@ class BatchError extends Error {
 
 type FormRow = { id: string; email: string; amount: string };
 
-// Row ids come from a counter rather than crypto.randomUUID() so the initial
-// render is deterministic (client components prerender on the server).
-function blankRow(id: string): FormRow {
-  return { id, email: "", amount: "" };
+function blankRow(): FormRow {
+  return { id: crypto.randomUUID(), email: "", amount: "" };
 }
 
 async function postBatch(input: {
   rows: { email: string; credits: number }[];
   idempotencyKey: string;
 }): Promise<BatchOk> {
-  // TODO(backend): POST /api/billing/credits/transfer { rows, idempotencyKey } → atomic ledger transfer batch with per-row results
-  await mockDelay();
-  const self = MOCK_USER.email.toLowerCase();
-  const rows: RowResult[] = input.rows.map((row) => {
-    const email = row.email.toLowerCase();
-    if (email === self) {
-      return { status: "self_transfer", email: row.email, amountCents: row.credits };
-    }
-    if (MOCK_UNREGISTERED_EMAILS.includes(email)) {
-      return { status: "recipient_not_found", email: row.email, amountCents: row.credits };
-    }
-    return {
-      status: "ok",
-      email: row.email,
-      amountCents: row.credits,
-      recipientEmail: row.email,
-    };
+  const res = await fetch("/api/billing/credits/transfer", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(input),
   });
+  const data = await res.json().catch(() => ({}));
 
-  const sent = rows.filter((row) => row.status === "ok");
-  if (sent.length === 0) {
+  if (!res.ok) {
+    const known = ["insufficient_balance", "no_valid_rows", "too_many_rows"];
     throw new BatchError({
-      code: "no_valid_rows",
-      message: "None of the recipients could be sent credits.",
-      rows,
+      code: known.includes(data.error) ? data.error : "error",
+      message: data.message ?? data.error ?? `HTTP ${res.status}`,
+      rows: data.rows,
     });
   }
 
-  recordMockTransfers(
-    input.idempotencyKey,
-    sent.map((row) => ({ email: row.email, amountCents: row.amountCents })),
-  );
-
-  return {
-    ok: true,
-    batchId: input.idempotencyKey,
-    rows,
-    totalSentCents: sent.reduce((sum, row) => sum + row.amountCents, 0),
-    senderBalanceCents: getMockCredits().remainingCents,
-    replayed: false,
-  };
-}
-
-type SendVars = Parameters<typeof postBatch>[0];
-
-/** Minimal stand-in for react-query's useMutation around postBatch. */
-function useSendBatch(onSuccess: () => void, onError: () => void) {
-  const [state, setState] = useState<{
-    status: "idle" | "pending" | "success" | "error";
-    data?: BatchOk;
-    error?: Error;
-  }>({ status: "idle" });
-
-  async function mutate(vars: SendVars) {
-    setState({ status: "pending" });
-    try {
-      const data = await postBatch(vars);
-      setState({ status: "success", data });
-      onSuccess();
-    } catch (err) {
-      setState({
-        status: "error",
-        error: err instanceof Error ? err : new Error("Something went wrong."),
-      });
-      onError();
-    }
-  }
-
-  return {
-    mutate,
-    reset: () => setState({ status: "idle" }),
-    data: state.data,
-    error: state.error,
-    isPending: state.status === "pending",
-    isSuccess: state.status === "success",
-    isError: state.status === "error",
-  };
+  return data as BatchOk;
 }
 
 export default function ShareCredits() {
-  const nextRowId = useRef(1);
-  const [rows, setRows] = useState<FormRow[]>([blankRow("row-0")]);
+  const queryClient = useQueryClient();
+  const [rows, setRows] = useState<FormRow[]>([blankRow()]);
   // Set when the user asks to send; cleared on edit or completion. Doubles as
   // the idempotency key, so the key is fixed at review time and a double-click
   // on the confirm button reuses it rather than minting a second one.
   const [pendingKey, setPendingKey] = useState<string | null>(null);
 
-  const credits = useCredits();
+  const credits = useQuery({
+    queryKey: ["billing", "credits"],
+    queryFn: () => fetchJson<Credits>("/api/billing/credits"),
+  });
 
   const balanceCents = credits.data?.remainingCents ?? 0;
 
-  function newRow(): FormRow {
-    return blankRow(`row-${nextRowId.current++}`);
-  }
-
-  const send = useSendBatch(
-    () => {
-      setRows([newRow()]);
+  const send = useMutation({
+    mutationFn: postBatch,
+    onSuccess: () => {
+      setRows([blankRow()]);
       setPendingKey(null);
+      queryClient.invalidateQueries({ queryKey: ["billing", "credits"] });
+      queryClient.invalidateQueries({ queryKey: ["billing", "transfers"] });
     },
-    () => setPendingKey(null),
-  );
+    onError: () => setPendingKey(null),
+  });
 
   const parsed = rows.map((row) => ({
     ...row,
@@ -221,7 +161,7 @@ export default function ShareCredits() {
   function addRow() {
     clearLastResult();
     setRows((current) =>
-      current.length >= MAX_ROWS ? current : [...current, newRow()],
+      current.length >= MAX_ROWS ? current : [...current, blankRow()],
     );
   }
 
@@ -261,6 +201,14 @@ export default function ShareCredits() {
 
   const failure = send.error instanceof BatchError ? send.error.failure : null;
   const resultRows = send.data?.rows ?? failure?.rows;
+
+  // Hold off the silent SSO check (which reloads the whole document) while
+  // there is a batch in progress. hasUnsavedInput() already covers the typed
+  // rows, but not the review modal or an in-flight send, which is the riskiest
+  // state to lose to a reload.
+  useProtectedWork(payload.length > 0 || pendingKey !== null || send.isPending);
+
+  const recipientLabel = `${payload.length} recipient${payload.length === 1 ? "" : "s"}`;
 
   return (
     <div className="flex-1 default-radius border border-gray-50 bg-gray-50 p-5">

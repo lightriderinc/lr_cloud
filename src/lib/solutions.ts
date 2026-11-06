@@ -12,6 +12,28 @@ import { TbAtom2Filled } from "react-icons/tb";
 
 export const DOCS_URL = "https://docs.lightriderinc.com";
 
+/**
+ * Each product site's origin, from NEXT_PUBLIC_{QUANTUM,ENTROPY,PQC}_URL so
+ * dev and preview builds can point at their own deployments. Falls back to
+ * the production host. NEXT_PUBLIC_ values are inlined at build time, so each
+ * must be referenced by its literal name.
+ */
+const PRODUCT_ORIGINS: Record<SolutionSlug, string> = {
+  quantum: originOrDefault(process.env.NEXT_PUBLIC_QUANTUM_URL, "https://platform.lightriderinc.com"),
+  entropy: originOrDefault(process.env.NEXT_PUBLIC_ENTROPY_URL, "https://entropy.lightriderinc.com"),
+  pqc: originOrDefault(process.env.NEXT_PUBLIC_PQC_URL, "https://pqc.lightriderinc.com"),
+};
+
+function originOrDefault(raw: string | undefined, fallback: string): string {
+  const value = raw?.trim();
+  return (value && /^https?:\/\//.test(value) ? value : fallback).replace(/\/$/, "");
+}
+
+/** Absolute URL of a page on a product's own site, e.g. productUrl("entropy", "/receipts"). */
+export function productUrl(slug: SolutionSlug, path = "/"): string {
+  return `${PRODUCT_ORIGINS[slug]}${path}`;
+}
+
 export type SolutionSlug = "quantum" | "pqc" | "entropy";
 
 export interface Solution {
@@ -33,7 +55,7 @@ export const SOLUTIONS: Record<SolutionSlug, Solution> = {
   quantum: {
     slug: "quantum",
     href: "/solutions/quantum",
-    link: "https://platform.lightriderinc.com/",
+    link: productUrl("quantum"),
     navLabel: "Quantum",
     name: "Quantum Compute",
     layer: "Quantum",
@@ -47,7 +69,7 @@ export const SOLUTIONS: Record<SolutionSlug, Solution> = {
   pqc: {
     slug: "pqc",
     href: "/solutions/pqc",
-    link: "https://pqc.lightriderinc.com/",
+    link: productUrl("pqc"),
     navLabel: "PQC",
     name: "Post-Quantum Cryptography",
     layer: "PQC",
@@ -61,7 +83,7 @@ export const SOLUTIONS: Record<SolutionSlug, Solution> = {
   entropy: {
     slug: "entropy",
     href: "/solutions/entropy",
-    link: "https://entropy.lightriderinc.com/",
+    link: productUrl("entropy"),
     navLabel: "Entropy",
     name: "Entropy as a Service",
     layer: "Entropy",

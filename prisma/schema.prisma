@@ -1,0 +1,413 @@
+// Billing/commerce schema for the Light Rider customer platform.
+//
+// This is intentionally scoped to *Stripe-facing* state only: who the
+// customer is in Stripe, what they're subscribed to, and a ledger of credit
+// grants/spends. It does not model quantum jobs, entropy pools, or usage
+// enforcement — that lives in the lr/EMS backend, which is expected to call
+// back into this app (or read a synced replica) to check balances before
+// running work. See BILLING_INTEGRATION.md for the handoff.
+//
+// Local dev: sqlite (see DATABASE_URL in .env.example). Swap the provider to
+// "postgresql" for staging/production — the schema itself is portable.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+// One row per authenticated Logto user who has ever touched billing.
+model Customer {
+  id              String   @id @default(cuid())
+  logtoUserId     String   @unique // Logto `sub` claim — the anchor identity
+  email           String?
+  stripeCustomerId String  @unique
+  creditsBalanceCents Int  @default(0) // cached sum of CreditLedgerEntry.amountCents — kept in sync via db.$transaction alongside every ledger insert
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  subscriptions   Subscription[]
+  ledgerEntries   CreditLedgerEntry[]
+  // Ledger rows belonging to *someone else* that name this customer as the
+  // other side of a credit transfer. Only populated for transfer rows.
+  counterpartyLedgerEntries CreditLedgerEntry[] @relation("LedgerCounterparty")
+  invitesSent       Invite[]   @relation("InvitesSent")
+  referralsSent     Referral[] @relation("ReferralsSent")
+  referralsReceived Referral[] @relation("ReferralsReceived")
+  usageEvents     ApiUsageEvent[]
+  apiKey          ApiKey?
+  quantumJobs     QuantumJobSubmission[]
+  reservations    Reservation[]
+  entropyCharges  EntropyCharge[]
+}
+
+// Mirrors a Stripe Subscription (used by both User Pricing plans and API
+// Pricing metered plans — `kind` distinguishes them).
+model Subscription {
+  id                   String   @id @default(cuid())
+  customerId           String
+  customer             Customer @relation(fields: [customerId], references: [id])
+  stripeSubscriptionId String   @unique
+  stripePriceId        String
+  kind                 SubscriptionKind
+  tier                 String?  // e.g. "starter" / "developer" / "professional" (User); "free" / "starter" / "developer" / "business" (API)
+  status               String   // Stripe subscription status, stored verbatim
+  currentPeriodStart   DateTime?
+  currentPeriodEnd     DateTime?
+  cancelAtPeriodEnd    Boolean  @default(false)
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
+}
+
+enum SubscriptionKind {
+  USER_PLAN // Starter / Developer / Professional / Enterprise (User Pricing page)
+  API_PLAN  // Free / Starter / Developer / Business (API Pricing page, usage-metered)
+}
+
+// Append-only ledger for prepaid Quantum Compute credits. Balance = sum of
+// amountCents for a customer. Positive = grant (purchase, promo), negative =
+// spend (reported by the backend once it enforces consumption).
+model CreditLedgerEntry {
+  id           String   @id @default(cuid())
+  customerId   String
+  customer     Customer @relation(fields: [customerId], references: [id])
+  amountCents  Int      // signed
+  reason       String   // e.g. "checkout:cs_123", "job:job_456", "manual_adjustment", "transfer_sent:<transferId>"
+  stripeEventId String? @unique // idempotency guard for webhook replays
+  // Customer-to-customer credit transfers (see lib/billing/transferCredits.ts)
+  // write exactly two rows sharing one transferId: the sender's debit and the
+  // recipient's credit. Both nullable — every pre-transfer row, and every
+  // non-transfer row written since, leaves them null. `reason` still carries
+  // the same `namespace:detail` convention ("transfer_sent:<transferId>" /
+  // "transfer_received:<transferId>") so anything parsing reason strings keeps
+  // working; these columns are the joinable version of the same fact.
+  transferId             String?
+  // The *other* party to the transfer: the recipient on a sender's debit row,
+  // the sender on a recipient's credit row. One column rather than two
+  // mutually-exclusive ones — direction is already unambiguous from the sign
+  // of amountCents.
+  counterpartyCustomerId String?
+  counterpartyCustomer   Customer? @relation("LedgerCounterparty", fields: [counterpartyCustomerId], references: [id])
+  // Groups every row written by one multi-recipient submit. A single-recipient
+  // send is just a batch of one, so this is set on those too; only pre-batch
+  // and non-transfer rows leave it null.
+  batchId                String?
+  // The counterparty's email as it stood when the transfer happened, captured
+  // from the Logto lookup the transfer already performs. History renders from
+  // this instead of calling Logto per row, and a later email change on their
+  // side never rewrites what this transfer actually was.
+  counterpartyEmailSnapshot String?
+  // Entropy draws and refunds (lib/billing/entropyCharges.ts) link the row to
+  // its EntropyCharge, so history can say WHAT was drawn (mode, bytes). Null
+  // on every other row, and on draws written before this column existed that
+  // the migration could not match unambiguously.
+  entropyChargeId        String?
+  entropyCharge          EntropyCharge? @relation(fields: [entropyChargeId], references: [id])
+  createdAt    DateTime @default(now())
+
+  @@index([transferId])
+  @@index([counterpartyCustomerId])
+  @@index([batchId])
+  @@index([entropyChargeId])
+  // History pages read one customer's rows newest-first.
+  @@index([customerId, createdAt])
+}
+
+// Guards a batch transfer submit against double execution. The id is the
+// client-generated idempotency key; its primary key is the whole guard, so a
+// double-click or retry loses the insert race inside the transaction rather
+// than being filtered by application logic that could itself race.
+/// One entropy-platform draw's charge (lib/billing/entropyCharges.ts).
+///
+/// `id` is the draw id the entropy site generates per click, so the primary
+/// key IS the idempotency guard: a retried request can never charge twice.
+/// `status` only ever moves charged -> settled (bytes delivered) or
+/// charged -> refunded (draw failed, or never settled - see the sweep), and
+/// every move is a conditional update, so a draw can't be both.
+model EntropyCharge {
+  id              String    @id
+  customerId      String
+  customer        Customer  @relation(fields: [customerId], references: [id])
+  mode            String    // pool | custom | source | card
+  bytes           Int
+  amountCents     Int
+  status          String    @default("charged") // charged | settled | refunded
+  egressRequestId String?   // EMS receipt request_id, set on settle
+  refundReason    String?
+  createdAt       DateTime  @default(now())
+  settledAt       DateTime?
+  refundedAt      DateTime?
+  /// "web" (a signed-in click on the entropy site) or "api" (the customer's
+  /// Light Rider API key, used on the entropy developer API).
+  channel         String    @default("web")
+  /// keyPrefix of the API key an "api" charge was made with. A prefix, not a
+  /// foreign key: revoking a key deletes its ApiKey row.
+  apiKeyPrefix    String?
+  // The draw's debit row, and its refund row if any.
+  ledgerEntries   CreditLedgerEntry[]
+
+  // The sweep reads stale `charged` rows oldest-first.
+  @@index([status, createdAt])
+  @@index([customerId, createdAt])
+}
+
+
+model ProcessedTransferBatch {
+  id         String   @id // client-supplied idempotency key
+  customerId String // the sender, so one user's key can never block another's
+  batchId    String   @unique // the batch actually written for this key
+  createdAt  DateTime @default(now())
+
+  @@index([customerId])
+}
+
+// An emailed invitation to join Light Rider. One row per invite actually
+// sent; an address that already has an account never gets a row (so it can
+// never consume the sender's daily quota).
+model Invite {
+  id                String   @id @default(cuid())
+  inviterCustomerId String
+  inviter           Customer @relation("InvitesSent", fields: [inviterCustomerId], references: [id])
+  email             String
+  token             String   @unique // the ?token= in the invite link
+  status            String   @default("pending") // pending | accepted | expired
+  expiresAt         DateTime // INVITE_TTL_DAYS out from createdAt
+  acceptedAt        DateTime?
+  // The Customer the invitee became, once they sign up.
+  acceptedByCustomerId String?
+  createdAt         DateTime @default(now())
+
+  // The daily rate limit counts this inviter's rows inside a rolling window.
+  @@index([inviterCustomerId, createdAt])
+  @@index([email])
+}
+
+// Refer & Earn. A row is created alongside every Invite (linked by
+// inviteToken); refereeCustomerId is filled in at signup by
+// markRefereeSignedUp(), and the reward fires on the referee's first
+// qualifying event — see lib/billing/referrals.ts.
+//
+// status: pending -> rewarded. "qualified" and "expired" remain in the
+// vocabulary but nothing sets them today: the reward is granted in the same
+// transaction that recognises qualification, so there is no window in which a
+// referral is qualified-but-unrewarded.
+model Referral {
+  id                    String   @id @default(cuid())
+  referrerCustomerId    String
+  referrer              Customer @relation("ReferralsSent", fields: [referrerCustomerId], references: [id])
+  refereeCustomerId     String? // null until the invited person actually signs up
+  referee               Customer? @relation("ReferralsReceived", fields: [refereeCustomerId], references: [id])
+  inviteToken           String?  @unique // links to the eventual Send Invite token, nullable so
+                                         // this table can exist before Send Invite ships
+  status                String   @default("pending") // pending | qualified | rewarded | expired
+  qualifyingEventReason String? // set once the reward trigger fires later, e.g. "first_qpu_job"
+                                // or "first_purchase" — free text, decided when built
+  rewardCents           Int? // set once a reward amount is decided; null = not yet rewarded
+  createdAt             DateTime @default(now())
+  qualifiedAt           DateTime?
+  rewardedAt            DateTime?
+
+  @@index([referrerCustomerId])
+  @@index([refereeCustomerId])
+}
+
+// Mirror of Stripe meter events we report for EaaS API usage, kept for our
+// own auditing/analytics independent of Stripe's meter aggregation.
+model ApiUsageEvent {
+  id            String   @id @default(cuid())
+  customerId    String
+  customer      Customer @relation(fields: [customerId], references: [id])
+  stripeEventId String   @unique
+  quantity      Int
+  createdAt     DateTime @default(now())
+}
+
+// One SDK/API key per Customer, hashed at rest — only ever shown in full at
+// creation/rotation time. Self-contained to this app; not shared with
+// iqm-proxy/EMS today.
+model ApiKey {
+  id         String    @id @default(cuid())
+  customerId String    @unique
+  customer   Customer  @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  keyHash    String    @unique
+  keyPrefix  String
+  createdAt  DateTime  @default(now())
+  lastUsedAt DateTime?
+  rotatedAt  DateTime?
+  // Per-key request window for the entropy developer API (60 a minute),
+  // reset or incremented in one statement by
+  // /api/internal/entropy/api-key/resolve.
+  rateWindowStart DateTime?
+  rateWindowCount Int       @default(0)
+}
+
+// Records which Customer submitted which iqm-proxy job. This app always
+// calls iqm-proxy with one shared QUANTUM_PROXY_SERVICE_KEY, so iqm-proxy's
+// own per-owner enforcement can't tell our customers apart from each other —
+// this table is what lets the jobs/[id] status/result routes enforce that a
+// customer can only ever look up their own job.
+model QuantumJobSubmission {
+  id         String   @id @default(cuid())
+  customerId String
+  customer   Customer @relation(fields: [customerId], references: [id])
+  jobId      String   @unique // iqm-proxy's job_uuid
+  backend    String
+  shots      Int      @default(1000) // backfill for pre-existing rows (never captured before this field existed) matches the modals' own hardcoded default; always passed explicitly going forward
+  status     String   @default("PENDING") // cached last-known status; refreshed opportunistically whenever GET jobs/[id] observes a live value from iqm-proxy — not itself a live source of truth
+  costCents  Int
+  createdAt  DateTime @default(now())
+  finishedAt DateTime? // backfilled opportunistically from iqm-proxy's finishedAt whenever GET jobs/[id] is called — null until then, even for already-completed jobs nobody has reopened since this field was added
+}
+
+// Records a customer's paid, exclusive-access booking of a Rigetti QPU time
+// slot. Same reasoning as QuantumJobSubmission: this app always calls
+// qpu-proxy with one shared QUANTUM_PROXY_SERVICE_KEY, so qpu-proxy's own
+// "current user" scoping on GET /reservations can't tell our customers apart
+// from each other — this table is the actual source of truth for "my
+// reservations", and qpu-proxy is never queried directly for the list.
+model Reservation {
+  id               String   @id @default(cuid())
+  customerId       String
+  customer         Customer @relation(fields: [customerId], references: [id])
+  reservationId    String   @unique // qpu-proxy's reservation_id
+  qcsReservationId String   // Rigetti QCS's own reservation id — kept for support/debugging, not used for lookups
+  deviceInstance   String   // e.g. "Cepheus-1-108Q"
+  startTime        DateTime
+  endTime          DateTime
+  priceCents       Int      // Rigetti's raw cost, from the confirmed booking response (not the pre-booking quote)
+  markupMultiplier Float    // RESERVATION_MARKUP_MULTIPLIER snapshotted at booking time, so a later env change can't retroactively change what a past booking appears to have cost
+  chargedCredits   Int      // what was actually deducted = round(priceCents * markupMultiplier)
+  notes            String?
+  createdAt        DateTime @default(now())
+}
+
+// Captures submissions from the Enterprise & Government "Get Custom
+// Pricing" / "Contact Sales" form. No Stripe object backs this directly —
+// enterprise deals are closed via Stripe Invoicing/ACH or a marketplace
+// private offer, set up manually by sales once the deal terms are agreed.
+model EnterpriseLead {
+  id            String   @id @default(cuid())
+  logtoUserId   String?
+  email         String
+  company       String?
+  useCase       String?
+  deploymentType String?
+  message       String?
+  createdAt     DateTime @default(now())
+}
+
+// Raw webhook log for idempotency + debugging. Every processed Stripe event
+// id is recorded so retried webhooks are safely ignored.
+model ProcessedStripeEvent {
+  id        String   @id // Stripe event id, e.g. evt_123
+  type      String
+  createdAt DateTime @default(now())
+}
+
+// ---------------------------------------------------------------------------
+// Legal acceptance tracking
+//
+// Records, per Logto user, every acceptance of a versioned legal document
+// (Privacy Policy / Terms of Use) — at registration and on every update.
+// Keyed on the Logto `sub` (logtoUserId), NOT on Customer.id, because legal
+// acceptance applies to every authenticated user, not only billing customers.
+// These tables live in the same Supabase Postgres as the billing models above.
+// ---------------------------------------------------------------------------
+
+enum LegalDocType {
+  PRIVACY
+  TERMS
+}
+
+enum LegalAcceptanceContext {
+  REGISTRATION // recorded at account creation (Logto User.Created webhook)
+  REPROMPT     // recorded when a user accepts an update via the in-app gate
+  BACKFILL     // recorded by the one-time seed for users predating this feature
+}
+
+enum LegalNotificationChannel {
+  EMAIL
+  IN_APP
+}
+
+// One row per published version of a legal document. "Effective" = highest
+// version whose effectiveAt <= now(); "announced" = a version whose effectiveAt
+// is still in the future (the pre-announcement window).
+model LegalDocument {
+  id          String       @id @default(cuid())
+  docType     LegalDocType
+  version     Int
+  publishedAt DateTime     @default(now())
+  effectiveAt DateTime
+  summary     String? // short "what changed", shown in banner/modal/email
+  contentUrl  String? // Supabase Storage path of the archived rendered text
+  contentHash String? // sha-256 of the archived text — proves what was accepted
+  createdAt   DateTime     @default(now())
+
+  acceptances   LegalAcceptance[]
+  notifications LegalNotification[]
+
+  @@unique([docType, version])
+  @@index([docType, effectiveAt])
+}
+
+// Append-only audit ledger. Never updated or deleted.
+model LegalAcceptance {
+  id              String                 @id @default(cuid())
+  logtoUserId     String // Logto `sub` claim — the anchor identity
+  docType         LegalDocType
+  documentId      String
+  document        LegalDocument          @relation(fields: [documentId], references: [id])
+  documentVersion Int
+  context         LegalAcceptanceContext
+  ip              String?
+  userAgent       String?
+  acceptedAt      DateTime               @default(now())
+  createdAt       DateTime               @default(now())
+
+  // Idempotency: one acceptance per (user, document, context), so a retried
+  // registration webhook or a double-clicked accept button can't duplicate.
+  @@unique([logtoUserId, documentId, context])
+  @@index([logtoUserId, docType])
+  @@index([documentId])
+}
+
+// Dedupe guard for outbound notices, so the daily cron never emails the same
+// user about the same document version twice.
+model LegalNotification {
+  id          String                   @id @default(cuid())
+  logtoUserId String
+  documentId  String
+  document    LegalDocument            @relation(fields: [documentId], references: [id])
+  channel     LegalNotificationChannel
+  sentAt      DateTime                 @default(now())
+
+  @@unique([logtoUserId, documentId, channel])
+  @@index([documentId])
+}
+
+// ---------------------------------------------------------------------------
+// Logto back-channel logout
+//
+// Logto's OIDC session (the shared SSO cookie at auth.lightriderinc.com) is
+// independent of any single app's already-issued tokens: signing out of PQC
+// only revokes PQC's own refresh token, so this app's session stays "valid"
+// by its own reckoning even though the user signed out elsewhere. Logto's
+// back-channel logout webhook (POST to /api/logto/logout-webhook) is what
+// notifies us in real time that a `sid` has ended (POST to
+// /api/webhooks/logto) — we record it here so every subsequent
+// getSession()/requireLogtoUser() call can reject a cookie carrying a
+// revoked sid, without needing a live round-trip to Logto on every request.
+// ---------------------------------------------------------------------------
+
+model RevokedLogtoSession {
+  sid       String   @id // the OIDC `sid` claim from the logout token
+  revokedAt DateTime @default(now())
+  expiresAt DateTime // retention horizon for pruning; independent of the session's own actual TTL
+
+  @@index([expiresAt])
+}
