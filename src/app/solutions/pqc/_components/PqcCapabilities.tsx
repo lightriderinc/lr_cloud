@@ -2,16 +2,14 @@ import CapabilityCard, { type Capability } from "@/components/solutions/Capabili
 import SectionHeading from "@/components/solutions/SectionHeading";
 import { productUrl } from "@/lib/solutions";
 import {
-  MdDraw,
-  MdLock,
+  MdApps,
   MdManageSearch,
   MdPolicy,
-  MdShuffle,
 } from "react-icons/md";
 
-// Risk and provenance are part of qSearch's scan results. The vault, the
-// signer and the entropy source picker are modals on the PQC Applications
-// page, which has no per-app URL to deep-link to.
+// Risk and provenance are part of qSearch's scan results. The individual apps
+// are modals on the PQC Applications page, which has no per-app URL, so they
+// share one card (like the Applications card on the Quantum solution page).
 const CAPABILITIES: Capability[] = [
   {
     title: "qSearch discovery",
@@ -28,23 +26,10 @@ const CAPABILITIES: Capability[] = [
     href: productUrl("pqc", "/qsearch"),
   },
   {
-    title: "Quantum Vault",
+    title: "Applications",
     description:
-      "Encrypt secrets with ML-KEM-768 and AES-256-GCM, then decrypt them and manage your keys in one place.",
-    icon: MdLock,
-    href: productUrl("pqc", "/applications"),
-  },
-  {
-    title: "ML-DSA-65 signing",
-    description: "Sign any text with ML-DSA-65 post-quantum signatures.",
-    icon: MdDraw,
-    href: productUrl("pqc", "/applications"),
-  },
-  {
-    title: "Entropy-backed keys",
-    description:
-      "Generate keys from quantum and certified sources such as ANU, CURBy, Drand and NIST, and compare sources side by side.",
-    icon: MdShuffle,
+      "Try hands-on post-quantum apps like Quantum Vault, the Quantum-Safe Signer, a JWT inspector and a PQC speed test.",
+    icon: MdApps,
     href: productUrl("pqc", "/applications"),
   },
 ];
