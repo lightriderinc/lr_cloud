@@ -1,0 +1,35 @@
+import { getSessionOutcome } from "@/lib/auth/session";
+import { NextResponse } from "next/server";
+
+// Auth state is per-request and must never be cached or shared between users.
+// No `dynamic`/`runtime` exports (cacheComponents rejects them): reading the
+// session cookie already makes this run at request time.
+
+/**
+ * Current auth state for the client-side session sync (see
+ * @/components/auth/SessionSync). Returns nothing but a boolean: it carries no
+ * PII, and anything the UI needs to *display* comes from the server render
+ * that `router.refresh()` triggers once this reports a change.
+ *
+ * MUST use the very same `getSession()` the UI renders from. An earlier
+ * version used a cheaper cookie-only check to avoid a userinfo round-trip per
+ * poll, and the two disagreed exactly when it mattered: after a session was
+ * revoked, the cookie still decoded fine, so this endpoint reported "signed
+ * in" while every component rendered "signed out". The sync then saw no change
+ * to act on AND applied the signed-in policy (no silent check on focus), which
+ * silently broke cross-app sign-in propagation. Consistency here is worth far
+ * more than the saved request.
+ */
+export async function GET() {
+  const { isAuthenticated, indeterminate } = await getSessionOutcome();
+
+  // `indeterminate` distinguishes "Logto says there is no session" from "we
+  // could not reach Logto". SessionSync treats the latter as no answer at all
+  // rather than as a sign-out, so a single failed round-trip cannot trigger a
+  // router.refresh() — which re-renders the server tree and, on a page with a
+  // half-filled form, used to throw the user's input away.
+  return NextResponse.json(
+    { isAuthenticated, indeterminate },
+    { headers: { "Cache-Control": "no-store, no-cache, must-revalidate" } },
+  );
+}
