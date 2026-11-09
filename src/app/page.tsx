@@ -6,35 +6,30 @@ import SectionHeading from "@/components/solutions/SectionHeading";
 import SolutionCard from "@/components/solutions/SolutionCard";
 import StackDiagram from "@/components/solutions/StackDiagram";
 import LRLinkButton from "@/components/ui/LRLinkButton";
-import { productUrl, SOLUTION_LIST } from "@/lib/solutions";
+import { SOLUTION_LIST } from "@/lib/solutions";
 import Link from "next/link";
-import { BiSolidCoin } from "react-icons/bi";
-import { MdArrowForward, MdGroupAdd } from "react-icons/md";
-import { RiLockPasswordFill } from "react-icons/ri";
+import { HiGiftTop } from "react-icons/hi2";
+import { MdAccountCircle, MdArrowForward } from "react-icons/md";
+import { PiCoinsFill } from "react-icons/pi";
 
 const ACCOUNT_FEATURES = [
   {
-    title: "Shared compute credits",
-    description:
-      "One balance pays for quantum jobs, entropy draws and PQC tools.",
+    title: "Account",
+    description: "Manage your account settings and profile.",
+    href: "/settings/account",
+    icon: MdAccountCircle,
+  },
+  {
+    title: "Credits",
+    description: "Manage your credits and purchases.",
     href: "/settings/manage-credits",
-    icon: BiSolidCoin,
+    icon: PiCoinsFill,
   },
   {
-    title: "One set of API keys",
-    description:
-      "Create a key once and use it with every platform in the stack.",
-    // Keys stay managed in the Quantum app for now; the same key works on
-    // Entropy, which manages it through Quantum's API.
-    href: productUrl("quantum", "/settings/keys"),
-    icon: RiLockPasswordFill,
-  },
-  {
-    title: "Share and earn",
-    description:
-      "Share credits with your team, and earn rewards by inviting others.",
+    title: "Rewards",
+    description: "Earn rewards for using the stack and referring others.",
     href: "/settings/rewards",
-    icon: MdGroupAdd,
+    icon: HiGiftTop,
   },
 ];
 
@@ -62,10 +57,7 @@ export default function Home() {
       <div className="mx-auto flex max-w-7xl flex-col gap-50 py-14">
         <section id="solutions" className="scroll-mt-6 mb-12">
           <div className="flex w-full items-center justify-center">
-            <SectionHeading
-              title="One account, three solutions"
-              centered
-            />
+            <SectionHeading title="One account, three solutions" centered />
           </div>
           <div className="grid gap-4 md:grid-cols-3">
             {SOLUTION_LIST.map((s) => (
@@ -99,7 +91,7 @@ export default function Home() {
                       : {})}
                     className="group flex h-full flex-col gap-3 border-l-2 border-gray-100 p-4 transition-colors hover:border-[var(--brand-tertiary)]"
                   >
-                    <Icon className="text-2xl text-gray-300 transition-colors group-hover:text-[var(--brand-tertiary)]" />
+                    <Icon className="text-6xl text-gray-200 transition-colors group-hover:text-[var(--brand-tertiary)]" />
                     <h3 className="flex items-center gap-2 font-semibold text-gray-800">
                       {title}
                       <MdArrowForward className="text-gray-300 transition-colors group-hover:text-[var(--brand-primary)]" />
