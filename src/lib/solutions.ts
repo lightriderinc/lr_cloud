@@ -19,7 +19,7 @@ export const DOCS_URL = "https://docs.lightriderinc.com";
  * must be referenced by its literal name.
  */
 const PRODUCT_ORIGINS: Record<SolutionSlug, string> = {
-  quantum: originOrDefault(process.env.NEXT_PUBLIC_QUANTUM_URL, "https://platform.lightriderinc.com"),
+  quantum: originOrDefault(process.env.NEXT_PUBLIC_QUANTUM_URL, "https://quantum.lightriderinc.com"),
   entropy: originOrDefault(process.env.NEXT_PUBLIC_ENTROPY_URL, "https://entropy.lightriderinc.com"),
   pqc: originOrDefault(process.env.NEXT_PUBLIC_PQC_URL, "https://pqc.lightriderinc.com"),
 };
