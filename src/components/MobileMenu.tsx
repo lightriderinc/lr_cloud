@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState, type ReactNode } from "react";
-import { MdMenu, MdClose, MdMenuBook } from "react-icons/md";
+import { MdMenu, MdClose, MdGavel, MdMenuBook } from "react-icons/md";
 import { DOCS_URL, MAIN_NAV } from "@/lib/solutions";
 import SidebarGroupSettings from "./sidebar/SidebarGroupSettings";
 import SidebarNavGroup from "./sidebar/SidebarNavGroup";
@@ -86,6 +86,12 @@ export default function MobileMenu({
                 icon={MdMenuBook}
                 onNavigate={close}
                 external
+              />
+              <SidebarNavItem
+                name="Legal"
+                href="/legal"
+                icon={MdGavel}
+                onNavigate={close}
               />
             </SidebarNavGroup>
             <SidebarGroupSettings

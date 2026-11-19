@@ -1,9 +1,16 @@
 import { DOCS_URL } from "@/lib/solutions";
 import Image from "next/image";
+import Link from "next/link";
 import { connection } from "next/server";
 import { Suspense } from "react";
 import { MdArrowOutward } from "react-icons/md";
 import GetStartedActions from "./GetStartedActions";
+
+const FOOTER_LEGAL_LINKS = [
+  { label: "Terms of Use", href: "/legal/terms" },
+  { label: "Privacy Policy", href: "/legal/privacy" },
+  { label: "Legal", href: "/legal" },
+];
 
 async function CopyrightYear() {
   await connection();
@@ -43,7 +50,7 @@ export default function CtaBand() {
           </a>
         </div>
       </div>
-      <div className="flex flex-row mx-auto max-w-7xl md:flex-row md:items-center md:justify-between border-t border-gray-600 py-4">
+      <div className="flex flex-row flex-wrap gap-x-6 gap-y-2 mx-auto max-w-7xl md:flex-row md:items-center md:justify-between border-t border-gray-600 py-4">
         <span className="text-xs text-gray-200">
           ©{" "}
           <Suspense fallback={<span className="inline-block w-[4ch]" />}>
@@ -51,6 +58,17 @@ export default function CtaBand() {
           </Suspense>{" "}
           Light Rider. All rights reserved.
         </span>
+        <nav aria-label="Legal" className="ml-auto flex flex-wrap gap-x-6 gap-y-1">
+          {FOOTER_LEGAL_LINKS.map(({ label, href }) => (
+            <Link
+              key={href}
+              href={href}
+              className="text-xs text-gray-200 transition-colors hover:text-[var(--brand-tertiary)]"
+            >
+              {label}
+            </Link>
+          ))}
+        </nav>
       </div>
     </section>
   );

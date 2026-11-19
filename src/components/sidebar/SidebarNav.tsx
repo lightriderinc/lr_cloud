@@ -1,6 +1,7 @@
 "use client";
 
 import { usePathname } from "next/navigation";
+import SidebarGroupLegal from "./SidebarGroupLegal";
 import SidebarGroupSettings from "./SidebarGroupSettings";
 
 /**
@@ -18,6 +19,7 @@ export default function SidebarNav({
 }) {
   const pathname = usePathname();
   const isSettingsRoute = pathname?.startsWith("/settings");
+  const isLegalRoute = pathname?.startsWith("/legal");
 
   return (
     <nav className="flex-1 overflow-auto px-3 py-4">
@@ -27,6 +29,7 @@ export default function SidebarNav({
           isAuthenticated={isAuthenticated}
         />
       )}
+      {isLegalRoute && <SidebarGroupLegal onNavigate={onNavigate} />}
     </nav>
   );
 }

@@ -11,6 +11,7 @@ export default function SidebarNavItem({
   onNavigate,
   external,
   tourId,
+  exact,
 }: {
   name: string;
   href: string;
@@ -18,10 +19,14 @@ export default function SidebarNavItem({
   onNavigate?: () => void;
   external?: boolean;
   tourId?: string;
+  /** Only active on this exact path, not its children (e.g. an overview page). */
+  exact?: boolean;
 }) {
   const pathname = usePathname();
   const active =
-    href === "/" ? pathname === "/" : pathname === href || pathname.startsWith(`${href}/`);
+    href === "/" || exact
+      ? pathname === href
+      : pathname === href || pathname.startsWith(`${href}/`);
   return (
     <li data-tour={tourId}>
       <Link

@@ -1,0 +1,56 @@
+These Light Rider Quantum Terms of Service (the "**Quantum Terms**") apply when you use **Light Rider Quantum**, including the job console, backend catalogue, hardware reservations, the Quantum API and SDK, applications, the classroom and related services. They supplement the Light Rider [General Terms of Use](/legal/terms), which apply to every Light Rider platform through your Light Rider Cloud account. If the two conflict, these Quantum Terms control for Light Rider Quantum only. Capitalized terms not defined here have the meaning given in the General Terms.
+
+## 1. What Light Rider Quantum provides
+
+- **Job submission.** You can submit quantum circuits to run on simulators and on real QPUs operated by third parties (for example, IQM, Rigetti and IBM Quantum), then view each job's status and results.
+- **Backend information.** We show information about available backends, such as qubit counts, topology, calibration data and live status, as reported by the hardware providers.
+- **Reservations.** On supported hardware, you can book an exclusive block of QPU time.
+- **Managed services and applications.** We may offer managed quantum services (such as quantum error correction workflows) and demonstration applications built on quantum hardware or entropy.
+- **Classroom.** Interactive learning content, including circuits you can run on a simulator.
+- **API and SDK.** Programmatic access to submit jobs and retrieve results.
+
+Which backends, services and features are available can change at any time, including because a hardware provider adds, retires, recalibrates or takes a device offline.
+
+## 2. Credits and pricing
+
+- **Simulators.** Simulator and mock backends that we label as free do not consume Credits.
+- **QPU jobs.** Jobs on real QPUs consume Credits at the rate shown in Light Rider Quantum when you submit the job (for example, a price per shot). The Credits for a job are charged when it is accepted for submission.
+- **Purchase required for real hardware.** Promotional Credits (such as a sign-up bonus) can be used on simulators but **cannot be used on real QPUs or for reservations until your account has made a qualifying purchase or received Credits from another user**, as shown in Light Rider Quantum.
+- **Failed and cancelled jobs.** If a job cannot be run because of a fault on our side or the hardware provider's, we will return the Credits charged for it. Credits are not returned for jobs that run but produce results you do not want, that fail because of an error in your circuit or parameters, or that you cancel after execution has started.
+
+## 3. Reservations
+
+- A reservation gives you exclusive access to the named device for the booked time slot. The price is shown before you confirm and may include a Light Rider service fee on top of the hardware provider's own price. **Credits for a reservation are charged when the booking is confirmed.**
+- **Unless stated otherwise when you book, reservations cannot be cancelled or rescheduled by you and are not refundable, including if you do not use the reserved time.**
+- If the hardware provider cancels your reservation, or the device is unavailable for a material part of the slot because of a provider outage, we will return the Credits for the affected time or, where the provider allows, help you rebook. This is your only remedy for a provider cancellation or outage.
+- Reservation availability, slot lengths and prices are set by the hardware providers and may change.
+
+## 4. Third-party hardware
+
+- QPUs are operated by **independent third parties**, not by Light Rider. When you submit a job or a reservation, Light Rider sends the necessary technical content (such as your circuit, the target device and number of shots) to the provider, under Light Rider's account and credentials, to execute it.
+- **You agree that we may transfer Your Content to these providers for this purpose**, and that the providers may process it under their own terms and policies, including logging it for operational purposes. Do not include personal information or confidential information in circuit metadata, names or comments.
+- Hardware providers may impose their own usage restrictions. We will reflect material restrictions in Light Rider Quantum or documentation, and you agree to comply with them.
+- Light Rider is not responsible for the availability, queue times, calibration, fidelity or performance of third-party hardware.
+
+## 5. Nature of quantum results
+
+Quantum computers are probabilistic and noisy. Results are subject to hardware noise, decoherence, calibration drift, compilation and transpilation choices, queue timing and statistical sampling error. **Results from Light Rider Quantum may differ between runs, between devices and from simulated or theoretical expectations, and are not guaranteed to be correct.** Simulators may not reproduce the behavior of real hardware. You are responsible for validating any result before relying on it, especially for research publications, financial decisions or other consequential uses.
+
+## 6. Quantum API and SDK
+
+- Use of the Quantum API is subject to the API key rules in Section 7 of the General Terms, to the rate limits and quotas of your plan, and to any limits on circuit size, shot counts and concurrent jobs stated in the documentation.
+- We may make backward-incompatible changes to the API. Where reasonable, we will give advance notice in the documentation or changelog for changes to generally available endpoints.
+- Sample code, notebooks and SDKs we provide may be subject to an open-source license included with them. Notebooks you open in third-party tools such as Google Colab are run under that tool's terms.
+
+## 7. Additional acceptable use
+
+In addition to Section 8 of the General Terms, you must not:
+
+- submit workloads intended to damage, monopolize, or degrade shared QPUs, or to interfere with other users' jobs or calibration;
+- attempt to access other users' jobs, results or reservations;
+- use Light Rider Quantum to break, or to attempt to break, cryptography protecting systems or data that you do not own or have permission to test; or
+- misrepresent results obtained from simulators as having come from real quantum hardware, or vice versa.
+
+## 8. Your jobs and results
+
+Your circuits, job parameters and results are Your Content under the General Terms. We keep job records and results so you can view them in Light Rider Quantum, as described in the Light Rider [Privacy Policy](/legal/privacy). Download anything you need to keep long term; we may remove old results under our retention practices.
