@@ -46,7 +46,7 @@ export default function LegalDocumentPage({
         <p className="mb-2 text-xs font-medium tracking-wider color-brand-primary">
           {isGeneral
             ? "All Light Rider platforms"
-            : `${legalScopeName(doc.scope)} · Supplemental`}
+            : `${legalScopeName(doc.scope)} - Supplemental`}
         </p>
         <h1 className="text-3xl font-semibold text-gray-800">{doc.title}</h1>
         <p className="mt-4 max-w-2xl text-sm text-gray-600">{doc.summary}</p>

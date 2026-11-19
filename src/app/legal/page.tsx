@@ -24,22 +24,19 @@ export default function LegalOverviewPage() {
   return (
     <div className="animate-fade-in-up mx-auto flex max-w-5xl flex-col gap-20 py-6">
       <header className="max-w-3xl">
-        <p className="mb-2 text-xs font-medium tracking-wider color-brand-primary">
-          Light Rider Cloud
-        </p>
         <h1 className="hero font-semibold leading-tight text-gray-800">
           Legal
         </h1>
         <p className="mt-4 text-gray-600">
           Your Light Rider Cloud account gives you access to every Light Rider
           platform, so one set of terms covers them all. The General Terms of
-          Use and Privacy Policy apply to your account and to Light Rider
-          Cloud, Light Rider Quantum, Light Rider Entropy and Light Rider PQC.
+          Use and Privacy Policy apply to your account and to Light Rider Cloud,
+          Light Rider Quantum, Light Rider Entropy and Light Rider PQC.
         </p>
       </header>
 
-      <section>
-        <SectionHeading eyebrow="Applies to every platform" title="General terms" />
+      <section className="mb-12">
+        <SectionHeading title="General terms" />
         <ul className="grid gap-4 md:grid-cols-2">
           {GENERAL_LEGAL_DOCS.map((doc) => {
             const Icon = kindIcon[doc.kind];
@@ -47,17 +44,22 @@ export default function LegalOverviewPage() {
               <li key={doc.href}>
                 <Link
                   href={doc.href}
-                  className="group flex h-full flex-col gap-3 border-l-2 border-gray-100 p-4 transition-colors hover:border-[var(--brand-tertiary)]"
+                  className="group flex h-full flex-col gap-5 bg-gray-100 p-5 border border-gray-50 transition-colors hover:border-[var(--brand-tertiary)]"
                 >
-                  <Icon className="text-4xl text-gray-200 transition-colors group-hover:text-[var(--brand-tertiary)]" />
-                  <h3 className="flex items-center gap-2 font-semibold text-gray-800">
-                    {doc.title}
-                    <MdArrowForward className="text-gray-300 transition-colors group-hover:text-[var(--brand-primary)]" />
-                  </h3>
-                  <p className="text-sm text-gray-600">{doc.summary}</p>
-                  <p className="mt-auto text-xs text-gray-400">
-                    Last updated {formatLegalDate(doc.lastUpdated)}
-                  </p>
+                  <div className="flex flex-col gap-2">
+                    <Icon className="text-4xl text-gray-200 transition-colors group-hover:text-[var(--brand-tertiary)]" />
+                    <h3 className="flex text-lg items-center gap-2 font-semibold text-gray-800">
+                      {doc.title}
+                    </h3>
+                    <p className="text-sm text-gray-600">{doc.summary}</p>
+                  </div>
+
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="mt-auto text-xs text-gray-400">
+                      Last updated {formatLegalDate(doc.lastUpdated)}
+                    </span>
+                    <MdArrowForward className="text-2xl text-gray-300 transition-colors group-hover:text-[var(--brand-primary)]" />
+                  </div>
                 </Link>
               </li>
             );
@@ -65,11 +67,13 @@ export default function LegalOverviewPage() {
         </ul>
       </section>
 
-      <section>
-        <SectionHeading eyebrow="Platform terms" title="Licenses and terms by platform">
-          Some platforms have supplemental terms of service and a privacy
-          notice with more detail about that platform. They add to the General
-          Terms of Use and Privacy Policy, which always apply.
+      <section className="mb-12">
+        <SectionHeading
+          title="Licenses and terms by platform"
+        >
+          Some platforms have supplemental terms of service and a privacy notice
+          with more detail about that platform. They add to the General Terms of
+          Use and Privacy Policy, which always apply.
         </SectionHeading>
 
         <div className="border-t border-gray-100">
@@ -85,7 +89,9 @@ export default function LegalOverviewPage() {
               >
                 <div>
                   <p className="font-semibold text-gray-800">{row.name}</p>
-                  <p className="mt-1 text-sm text-gray-500">{row.description}</p>
+                  <p className="mt-1 text-sm text-gray-500">
+                    {row.description}
+                  </p>
                 </div>
                 <ul className="flex flex-col gap-2 md:pt-0.5">
                   {row.docs.map((doc) => {
@@ -111,7 +117,7 @@ export default function LegalOverviewPage() {
         </div>
       </section>
 
-      <section className="border-t border-gray-100 pt-10">
+      <section>
         <h2 className="mb-3 text-xl font-semibold text-gray-700">Contact</h2>
         <address className="text-sm not-italic text-gray-600">
           {LEGAL_ENTITY.name}
@@ -120,7 +126,10 @@ export default function LegalOverviewPage() {
               {line}
             </span>
           ))}
-          <a href={`mailto:${LEGAL_ENTITY.email}`} className="brand-link mt-2 inline-block">
+          <a
+            href={`mailto:${LEGAL_ENTITY.email}`}
+            className="brand-link mt-2 inline-block"
+          >
             {LEGAL_ENTITY.email}
           </a>
         </address>
