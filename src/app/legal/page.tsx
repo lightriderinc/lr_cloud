@@ -69,7 +69,7 @@ export default function LegalOverviewPage() {
 
       <section className="mb-12">
         <SectionHeading
-          title="Licenses and terms by platform"
+          title="Licenses and terms by product"
         >
           Some platforms have supplemental terms of service and a privacy notice
           with more detail about that platform. They add to the General Terms of
