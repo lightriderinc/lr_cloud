@@ -9,7 +9,7 @@ import { NextResponse } from "next/server";
 /**
  * GET /api/billing/credits
  *
- * Returns the caller's own Quantum Compute credit balance, split into
+ * Returns the caller's own Light Rider credit balance, split into
  * what's actually been purchased vs. spent so far. `purchasedCents`
  * deliberately excludes the one-time free signup grant (reason:
  * "signup_credit") — it's a real-purchases-only signal, used both to gate

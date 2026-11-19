@@ -43,7 +43,7 @@ export default function PqcHero() {
           Find quantum-vulnerable cryptography, then replace it.
         </p>
         <p className="text-sm text-gray-600">
-          Veloce gets you ready for harvest-now-decrypt-later attacks. It finds
+          Light Rider PQC gets you ready for harvest-now-decrypt-later attacks. It finds
           the cryptography in your code that quantum computers will break, then
           lets you encrypt and sign with NIST-aligned ML-KEM and ML-DSA keys
           backed by quantum entropy.

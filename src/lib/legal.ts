@@ -1,4 +1,4 @@
-import type { SolutionSlug } from "@/lib/solutions";
+import { SOLUTIONS, type SolutionSlug } from "@/lib/solutions";
 
 // Registry of Light Rider's legal documents.
 //
@@ -25,12 +25,12 @@ export const LEGAL_ENTITY = {
   ],
 } as const;
 
-/** Official platform names. Use these in legal copy, never descriptive names. */
+/** Official platform names (single source: SOLUTIONS in lib/solutions.ts). */
 export const PLATFORM_NAMES = {
   cloud: "Light Rider Cloud",
-  quantum: "Light Rider Quantum",
-  entropy: "Light Rider Entropy",
-  pqc: "Light Rider PQC",
+  quantum: SOLUTIONS.quantum.name,
+  entropy: SOLUTIONS.entropy.name,
+  pqc: SOLUTIONS.pqc.name,
 } as const;
 
 export type LegalScope = "general" | SolutionSlug;
