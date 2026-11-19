@@ -25,7 +25,7 @@ export default function LegalOverviewPage() {
     <div className="animate-fade-in-up mx-auto flex max-w-5xl flex-col gap-20 py-6">
       <header className="max-w-3xl">
         <h1 className="hero font-semibold leading-tight text-gray-800">
-          Legal
+          Light Rider Cloud - <span className="text-brand-gradient">Legal</span>
         </h1>
         <p className="mt-4 text-gray-600">
           Your Light Rider Cloud account gives you access to every Light Rider
