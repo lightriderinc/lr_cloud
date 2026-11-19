@@ -29,7 +29,7 @@ export default function LegalOverviewPage() {
         </h1>
         <p className="mt-4 text-gray-600">
           Your Light Rider Cloud account gives you access to every Light Rider
-          platform, so one set of terms covers them all. The General Terms of
+          product, so one set of terms covers them all. The General Terms of
           Use and Privacy Policy apply to your account and to Light Rider Cloud,
           Light Rider Quantum, Light Rider Entropy and Light Rider PQC.
         </p>
@@ -71,14 +71,14 @@ export default function LegalOverviewPage() {
         <SectionHeading
           title="Licenses and terms by product"
         >
-          Some platforms have supplemental terms of service and a privacy notice
-          with more detail about that platform. They add to the General Terms of
+          Some products have supplemental terms of service and a privacy notice
+          with more detail about that product. They add to the General Terms of
           Use and Privacy Policy, which always apply.
         </SectionHeading>
 
         <div className="border-t border-gray-100">
           <div className="hidden grid-cols-[1fr_1fr] gap-6 border-b border-gray-100 py-3 text-2xs font-medium uppercase tracking-wider text-gray-300 md:grid">
-            <span>Platform</span>
+            <span>Product</span>
             <span>Licenses and terms</span>
           </div>
           <ul>
