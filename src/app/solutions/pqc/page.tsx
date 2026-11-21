@@ -1,9 +1,12 @@
 import CtaBand from "@/components/solutions/CtaBand";
 import { SOLUTIONS } from "@/lib/solutions";
 import type { Metadata } from "next";
-import PqcCapabilities from "./_components/PqcCapabilities";
+import PqcApplications from "./_components/PqcApplications";
+import PqcBeyondCode from "./_components/PqcBeyondCode";
+import PqcFindings from "./_components/PqcFindings";
 import PqcHero from "./_components/PqcHero";
 import PqcHowItWorks from "./_components/PqcHowItWorks";
+import PqcWhy from "./_components/PqcWhy";
 import PqcWorksWith from "./_components/PqcWorksWith";
 
 const solution = SOLUTIONS.pqc;
@@ -19,8 +22,11 @@ export default function Page() {
       <PqcHero />
 
       <div className="mx-auto flex max-w-7xl flex-col gap-20 py-14">
-        <PqcCapabilities />
+        <PqcWhy />
         <PqcHowItWorks />
+        <PqcFindings />
+        <PqcBeyondCode />
+        <PqcApplications />
         <PqcWorksWith />
       </div>
 

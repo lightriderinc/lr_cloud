@@ -40,13 +40,14 @@ export default function PqcHero() {
           {name}
         </h1>
         <p className="text-lg text-gray-700">
-          Find quantum-vulnerable cryptography, then replace it.
+          Find the encryption that quantum computers will break, and move to
+          what replaces it.
         </p>
         <p className="text-sm text-gray-600">
-          Light Rider PQC gets you ready for harvest-now-decrypt-later attacks. It finds
-          the cryptography in your code that quantum computers will break, then
-          lets you encrypt and sign with NIST-aligned ML-KEM and ML-DSA keys
-          backed by quantum entropy.
+          Post-quantum cryptography (PQC) is encryption designed to hold up
+          against quantum computers. Light Rider PQC scans your code and
+          servers for the older methods it replaces, shows what to fix first,
+          and lets you try the new standards in your browser.
         </p>
       </div>
 
@@ -56,10 +57,6 @@ export default function PqcHero() {
           Documentation
         </LRLinkButton>
       </div>
-
-      <p className="text-xs text-gray-400">
-        Built for: Security and compliance engineers planning a PQC migration.
-      </p>
     </PageHero>
   );
 }
