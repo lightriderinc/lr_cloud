@@ -47,12 +47,13 @@ export default function QuantumHero() {
           {name}
         </h1>
         <p className="text-lg text-gray-700">
-          Your gateway to quantum computing.
+          Run programs on real quantum computers, from your browser or your
+          code.
         </p>
         <p className="text-sm text-gray-600">
-          Run quantum circuits on simulators and real QPUs, book dedicated
-          hardware time, and build on managed quantum services and
-          applications, all paid for with pay-as-you-go compute credits.
+          Build a quantum program, test it for free on a simulator, then run
+          it on machines from IQM, IonQ and Rigetti. Simulators cost nothing;
+          you pay in credits only for time on real hardware.
         </p>
       </div>
 
@@ -62,11 +63,6 @@ export default function QuantumHero() {
           Documentation
         </LRLinkButton>
       </div>
-
-      <p className="text-xs text-gray-400">
-        Built for: Developers, researchers and students running quantum
-        circuits.
-      </p>
     </PageHero>
   );
 }

@@ -62,9 +62,9 @@ export const SOLUTIONS: Record<SolutionSlug, Solution> = {
     layer: "Quantum",
     icon: TbAtom2Filled,
     logo: { src: "/lightrider-quantum-logo-black.svg", width: 255, height: 18 },
-    tagline: "Your gateway to quantum computing.",
+    tagline: "Run programs on real quantum computers.",
     summary:
-      "Run quantum circuits on simulators and real QPUs, book dedicated hardware time, and build on managed quantum services and applications, all paid for with pay-as-you-go compute credits.",
+      "Build quantum programs in your browser or in Python, test them free on simulators, and run them on quantum computers from IQM, IonQ and Rigetti. You pay only for time on real hardware.",
   },
 
   pqc: {
