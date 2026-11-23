@@ -14,10 +14,6 @@ export default function SolutionCard({ solution }: { solution: Solution }) {
       <div className="flex flex-col gap-4">
         <div className="flex items-start justify-between">
           <Icon className="text-5xl text-gray-200 transition-colors duration-150 group-hover:text-[var(--brand-tertiary)]" />
-
-          <span className="text-2xs font-medium uppercase tracking-wide text-gray-200">
-            {layer}
-          </span>
         </div>
         <div className="flex flex-col gap-1">
           <h3 className="text-lg font-semibold text-gray-800">{name}</h3>
