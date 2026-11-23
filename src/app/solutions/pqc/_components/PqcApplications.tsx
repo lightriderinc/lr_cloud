@@ -55,8 +55,9 @@ export default function PqcApplications() {
   return (
     <section>
       <SectionHeading title="Try the new standards">
-        Seven tools that run in your browser. Nothing to install, and your keys
-        and secrets stay on your device.
+        <span className="text-lg text-gray-700">
+          Tools that run in your browser.
+        </span>
       </SectionHeading>
 
       <div className="grid gap-10 lg:grid-cols-3">

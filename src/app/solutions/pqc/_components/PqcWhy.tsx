@@ -27,7 +27,7 @@ export default function PqcWhy() {
         {RISKS.map(({ label, text }) => (
           <div
             key={label}
-            className="default-radius border-l-2 border-[var(--brand-primary)] bg-gray-50 p-5"
+            className="default-radius border-l-3 border-amber-500 bg-gray-50 p-5"
           >
             <dt className="font-semibold text-gray-800">{label}</dt>
             <dd className="mt-1 text-sm text-gray-600">{text}</dd>

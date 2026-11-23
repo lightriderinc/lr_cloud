@@ -9,11 +9,11 @@ type Status = "vulnerable" | "ready" | "key" | "low";
 
 // Labels follow qSearch's own: its "quantum-vulnerable" and "pqc-ready"
 // classifications, its "Private key" alert, and its low risk level.
-const STATUS: Record<Status, { label: string; className: string }> = {
-  vulnerable: { label: "Quantum-vulnerable", className: "bg-red-50 text-red-700" },
-  key: { label: "Private key", className: "bg-red-50 text-red-700" },
-  ready: { label: "PQC-ready", className: "bg-green-50 text-green-700" },
-  low: { label: "Low risk", className: "bg-gray-100 text-gray-600" },
+const STATUS: Record<Status, { label: string; className: string, onClass: string; rowBorder: string }> = {
+  vulnerable: { label: "Quantum-vulnerable", className: "bg-red-50 text-red-600 border border-red-50 group-hover:border-red-300", onClass: "border-red-300", rowBorder: "border-red-500" },
+  key: { label: "Private key", className: "bg-red-50 text-red-600 border border-red-50 group-hover:border-red-300", onClass: "border-red-300", rowBorder: "border-red-500" },
+  ready: { label: "PQC-ready", className: "bg-green-50 text-green-700 border border-green-50 group-hover:border-green-400", onClass: "border-green-400", rowBorder: "border-green-500" },
+  low: { label: "Low risk", className: "bg-gray-100 text-gray-600 border border-gray-100 group-hover:border-gray-200", onClass: "border-gray-200", rowBorder: "border-gray-200" },
 };
 
 // A made-up project, simplified from the shape of a real qSearch result.
@@ -109,16 +109,16 @@ export default function PqcFindings() {
                   onClick={() => setActive(i)}
                   onMouseEnter={() => setActive(i)}
                   onFocus={() => setActive(i)}
-                  className={`w-full cursor-pointer default-radius border-l-2 px-4 py-3 text-left transition-colors ${
+                  className={`w-full cursor-pointer default-radius border-l-3 px-4 py-3 text-left transition-colors group ${
                     on
-                      ? "border-[var(--brand-primary)] bg-gray-50"
+                      ? `${badge.rowBorder} bg-gray-50`
                       : "border-transparent hover:bg-gray-50"
                   }`}
                 >
                   <span className="flex flex-wrap items-center justify-between gap-x-4 gap-y-1">
                     <span className="font-semibold text-gray-800">{algorithm}</span>
                     <span
-                      className={`default-radius px-2 py-0.5 text-xs font-medium ${badge.className}`}
+                      className={`rounded uppercase px-2 py-0.5 text-xs font-semibold ${badge.className} ${on ? badge.onClass : ""}`}
                     >
                       {badge.label}
                     </span>

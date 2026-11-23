@@ -16,6 +16,7 @@
 
 .brand-link {
   color: var(--brand-primary) !important;
+  font-weight: 500 !important;
 
   &:hover {
     color: var(--brand-primary-light) !important;
