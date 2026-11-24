@@ -27,13 +27,11 @@ export default function EntropyGetStarted() {
   return (
     <section>
       <SectionHeading title="Two ways to start">
-        1 credit ($0.01) buys 256 random bytes, and a failed draw costs
-        nothing.
       </SectionHeading>
 
       <div className="grid gap-4 lg:grid-cols-[2fr_3fr]">
         <div className="flex flex-col default-radius bg-gray-50 p-5">
-          <h3 className="font-semibold text-gray-800">In your browser</h3>
+          <h3 className="text-lg font-semibold text-gray-800">In your browser</h3>
           <p className="mt-1 text-sm text-gray-600">
             No code needed. Choose a pool or sources, set how many bytes you
             want, and copy the result. Your receipts are saved to your account,
@@ -43,7 +41,7 @@ export default function EntropyGetStarted() {
         </div>
 
         <div className="flex flex-col default-radius bg-gray-50 p-5">
-          <h3 className="font-semibold text-gray-800">From your code</h3>
+          <h3 className="text-lg font-semibold text-gray-800">From your code</h3>
           <p className="mt-1 text-sm text-gray-600">
             Install with <code className="font-mono text-xs">pip install lightrider</code>,
             or call the API from any language. Up to 4,096 bytes per request.

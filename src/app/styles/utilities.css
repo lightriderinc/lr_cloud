@@ -5,3 +5,50 @@
 .border-color-brand {
   border-color: var(--brand-tertiary);
 }
+
+/*
+ * Animated brand-gradient border that keeps rounded corners (border-image
+ * would drop them). Pair with a border width utility, e.g. `border-l-3`.
+ * The gray fill covers the padding box; the gradient layer is twice the
+ * element's height and holds two identical colour cycles, so sliding it by
+ * one cycle loops seamlessly.
+ */
+.gradient-border-brand {
+  border-color: transparent;
+  background:
+    linear-gradient(var(--color-gray-50), var(--color-gray-50)) padding-box,
+    linear-gradient(
+        180deg,
+        var(--brand-secondary),
+        var(--brand-secondary),
+        var(--brand-tertiary),
+        var(--brand-secondary),
+        var(--brand-secondary),
+        var(--brand-tertiary),
+        var(--brand-secondary)
+      )
+      border-box;
+  background-size:
+    100% 100%,
+    100% 200%;
+  animation: gradient-border-flow 4s linear infinite;
+}
+
+@keyframes gradient-border-flow {
+  from {
+    background-position:
+      0 0,
+      0 0;
+  }
+  to {
+    background-position:
+      0 0,
+      0 100%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .gradient-border-brand {
+    animation: none;
+  }
+}

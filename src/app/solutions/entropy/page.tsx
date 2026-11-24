@@ -22,7 +22,7 @@ export default function Page() {
     <div className="animate-fade-in-up">
       <EntropyHero />
 
-      <div className="mx-auto flex max-w-7xl flex-col gap-20 py-14">
+      <div className="mx-auto flex max-w-7xl flex-col gap-40 py-14">
         <EntropyWhy />
         <EntropyHowItWorks />
         <EntropySources />

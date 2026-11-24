@@ -17,15 +17,15 @@ const COMING_SOON = "IBM quantum computers";
 const WAYS_TO_DRAW = [
   {
     title: "A preset pool",
-    text: "Pick a pool and let it choose the devices: Fastest for quick responses, Highest quality, or Quantum-verified, which uses quantum devices only. Available in the browser.",
+    text: "Pick an available pool and let it choose the devices.",
   },
   {
     title: "One source",
-    text: "Draw from a single device you name. If it can't serve your request, you get an error and no charge. Nothing is swapped in behind your back.",
+    text: "Draw from a single source of your choice.",
   },
   {
     title: "Your own blend",
-    text: "Combine 2 to 8 sources of your choice. The receipt lists every device that contributed.",
+    text: "Combine up to 8 sources of your choice.",
   },
 ];
 
@@ -33,7 +33,7 @@ export default function EntropySources() {
   return (
     <section>
       <SectionHeading title="Choose where your randomness comes from">
-        Let a pool pick the devices, or choose them yourself.
+        <span className="text-lg">Let a pool pick the devices, or choose them yourself.</span>
       </SectionHeading>
 
       <div className="grid gap-10 lg:grid-cols-2">
