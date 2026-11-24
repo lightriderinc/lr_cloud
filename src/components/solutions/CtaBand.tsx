@@ -30,7 +30,7 @@ export default function CtaBand() {
             className="mb-6"
           />
           <h2 className="text-2xl font-semibold text-white">
-            Start building on the full stack
+            Start building on Light Rider Cloud
           </h2>
           <p className="max-w-xl text-sm text-gray-200">
             Pay as you go with compute credits. New accounts get a 1K credit

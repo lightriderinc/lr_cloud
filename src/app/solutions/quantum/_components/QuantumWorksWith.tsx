@@ -8,7 +8,7 @@ export default function QuantumWorksWith() {
     <section>
       <SectionHeading title="The solution stack">
         {SOLUTIONS.quantum.name} is one layer of Light Rider Cloud.{" "}
-        <Link href="/#stack" className="brand-link">
+        <Link href="/#solutions" className="brand-link">
           See how the stack fits together
         </Link>
         .

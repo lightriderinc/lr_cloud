@@ -14,5 +14,8 @@ h1.hero {
 }
 
 h1.hero-large {
-  font-size: 3rem !important;
+  font-size: 4rem !important;
+  @media (max-width: 768px) {
+    font-size: 3rem !important;
+  }
 }
