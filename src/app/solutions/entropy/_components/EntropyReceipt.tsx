@@ -63,8 +63,8 @@ export default function EntropyReceipt() {
     <section>
       <SectionHeading title="A receipt for every draw">
         Each draw comes with a signed record of how it was made. The receipt
-        never contains your random bytes, so you can store it or hand it to
-        someone else. Light Rider keeps your receipts; the bytes stay with you.
+        does not contain your random bytes, so you can store it or hand it to
+        someone else.
       </SectionHeading>
 
       <div className="grid gap-6 lg:grid-cols-[3fr_2fr]">
@@ -78,9 +78,9 @@ export default function EntropyReceipt() {
               return (
                 <span
                   key={i}
-                  className={`block border-l-2 px-4 transition-colors ${
+                  className={`block border-l-5 px-4 transition-colors ${
                     on
-                      ? "border-[var(--brand-tertiary)] bg-white/10 text-white"
+                      ? "border-[var(--brand-secondary)] bg-white/10 text-white"
                       : "border-transparent"
                   }`}
                 >
