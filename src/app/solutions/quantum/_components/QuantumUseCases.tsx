@@ -5,7 +5,7 @@ import SectionHeading from "@/components/solutions/SectionHeading";
 const USE_CASES = [
   {
     title: "Learning and teaching",
-    text: "Work through the Classroom, then build the same circuits in the Composer and test them on the free Garnet simulator. Run the finished circuit on IQM Garnet: 1,000 shots cost $2, and students see entanglement in their own results.",
+    text: "Work through the Classroom, then build the same circuits in the Composer and test them on the free Garnet simulator. Run the finished circuit on IQM Garnet: 1,000 shots cost 200 credits, and students see entanglement in their own results.",
     machines: ["IQM Garnet"],
   },
   {
@@ -39,7 +39,7 @@ export default function QuantumUseCases() {
               {machines.map((m) => (
                 <span
                   key={m}
-                  className="default-radius border border-gray-200 bg-white px-2 py-0.5 text-xs text-gray-700"
+                  className="rounded border border-gray-200 bg-white px-2 py-0.5 text-xs text-gray-700"
                 >
                   {m}
                 </span>

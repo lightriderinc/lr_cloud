@@ -44,7 +44,7 @@ const MACHINES: Machine[] = [
     tech: "Superconducting",
     qubits: "20",
     layout: "A grid. Each qubit links to up to four neighbours.",
-    cost: "$2 per 1,000 shots",
+    cost: "200 credits per 1,000 shots",
     practice: "A free simulator of Garnet, for circuits of up to 12 qubits.",
     bestFor:
       "Your first runs on real hardware. The Classroom and the platform's examples use Garnet, so your results line up with what you learned.",
@@ -55,7 +55,7 @@ const MACHINES: Machine[] = [
     tech: "Superconducting",
     qubits: "54 on the chip, up to 20 per circuit",
     layout: "A grid, like Garnet's, on a larger chip.",
-    cost: "$2 per 1,000 shots",
+    cost: "200 credits per 1,000 shots",
     practice: "A free simulator of Emerald, for circuits of up to 12 qubits.",
     bestFor:
       "Checking that a result from Garnet holds on a second chip of the same kind, or running when Garnet is busy.",
@@ -67,7 +67,7 @@ const MACHINES: Machine[] = [
     qubits: "16",
     layout:
       "A star. Every qubit links to one shared centre, so any two can be brought together in a single hop.",
-    cost: "$2 per 1,000 shots",
+    cost: "200 credits per 1,000 shots",
     practice: "A free simulator of Sirius, for circuits of up to 12 qubits.",
     bestFor:
       "Circuits where one qubit has to work with many others, such as linking a whole group of qubits together.",
@@ -78,7 +78,7 @@ const MACHINES: Machine[] = [
     tech: "Trapped ions",
     qubits: "36",
     layout: "Every qubit can work directly with every other.",
-    cost: "Priced per job by IonQ. You see the price before you submit.",
+    cost: "Priced per job by IonQ. You see the cost in credits before you submit.",
     practice:
       "Two free simulators, for circuits of up to 29 qubits: one perfect, and one with Forte's typical errors.",
     bestFor:
@@ -91,7 +91,7 @@ const MACHINES: Machine[] = [
     qubits: "108",
     layout:
       "Several smaller chips joined into one grid. A live map shows how well each qubit and link scored in the latest calibration, so you can place your circuit on the best ones.",
-    cost: "Book 15, 30 or 60 minutes with the machine to yourself, paid upfront.",
+    cost: "Book 15, 30 or 60 minutes with the machine to yourself, paid upfront in credits.",
     practice: "A free simulator with Cepheus's typical errors, at full size.",
     bestFor:
       "The largest circuits on the platform, and research that needs a quiet machine and up-to-date calibration data.",
@@ -151,10 +151,10 @@ export default function QuantumHardware() {
         {TECHNOLOGIES.map(({ name, makers, text }) => (
           <div
             key={name}
-            className="default-radius border-l-2 border-[var(--brand-primary)] bg-gray-50 p-5"
+            className="default-radius border-l-3 border-[var(--brand-secondary)] bg-gray-50 p-5"
           >
             <dt className="flex flex-wrap items-baseline justify-between gap-x-4">
-              <span className="font-semibold text-gray-800">{name}</span>
+              <span className="font-semibold text-lg text-gray-800">{name}</span>
               <span className="text-xs text-gray-500">{makers}</span>
             </dt>
             <dd className="mt-1 text-sm text-gray-600">{text}</dd>
@@ -169,9 +169,9 @@ export default function QuantumHardware() {
             return (
               <li
                 key={machine.id}
-                className={`default-radius border-l-2 transition-colors ${
+                className={`default-radius border-l-3 transition-colors ${
                   on
-                    ? "border-[var(--brand-primary)] bg-gray-50"
+                    ? "border-[var(--brand-secondary)] bg-gray-50"
                     : "border-transparent hover:bg-gray-50"
                 }`}
               >

@@ -266,9 +266,9 @@ export default function QuantumRun() {
                 type="button"
                 aria-pressed={on}
                 onClick={() => run(i, mode)}
-                className={`cursor-pointer default-radius border-l-2 px-4 py-3 text-left transition-colors ${
+                className={`cursor-pointer default-radius border-l-3 px-4 py-3 text-left transition-colors ${
                   on
-                    ? "border-[var(--brand-primary)] bg-gray-50"
+                    ? "border-[var(--brand-secondary)] bg-gray-50"
                     : "border-transparent hover:bg-gray-50"
                 }`}
               >
@@ -292,8 +292,8 @@ export default function QuantumRun() {
                   type="button"
                   aria-pressed={mode === option}
                   onClick={() => run(active, option)}
-                  className={`cursor-pointer default-radius px-3 py-1 text-sm transition-colors ${
-                    mode === option ? "bg-gray-800 text-white" : "text-gray-600 hover:text-gray-800"
+                  className={`cursor-pointer default-radius px-3 py-1 text-sm font-medium transition-colors ${
+                    mode === option ? "bg-brand-primary text-white" : "text-gray-600 hover:text-gray-800"
                   }`}
                 >
                   {option === "simulator" ? "Simulator" : "Quantum computer"}
@@ -322,13 +322,13 @@ export default function QuantumRun() {
                 const count = counts[outcome] ?? 0;
                 const isError = !(outcome in expected);
                 return (
-                  <div key={outcome} className="flex h-full flex-1 flex-col justify-end">
+                  <div key={outcome} className="flex h-full flex-1 flex-col items-center justify-end">
                     <span className="mb-1 text-center font-mono text-xs text-gray-500">
                       {count}
                     </span>
                     <div
-                      className={`default-radius rounded-b-none motion-safe:transition-[height] motion-safe:duration-500 ${
-                        isError ? "bg-gray-300" : "bg-[var(--brand-tertiary)]"
+                      className={`w-full max-w-20 rounded rounded-b-none motion-safe:transition-[height] motion-safe:duration-500 ${
+                        isError ? "bg-gray-300" : "bg-blue-500"
                       }`}
                       style={{ height: `${(count / tallest) * 85}%` }}
                     />

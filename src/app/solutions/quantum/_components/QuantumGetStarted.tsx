@@ -35,37 +35,34 @@ const card = "flex flex-col default-radius bg-gray-50 p-5";
 export default function QuantumGetStarted() {
   return (
     <section>
-      <SectionHeading title="Three ways in">
-        Whichever you choose, every job you run is saved to one list on your
-        account, with its results.
+      <SectionHeading title="Getting started">
       </SectionHeading>
 
       <div className="grid gap-4 lg:grid-cols-[2fr_3fr]">
         <div className="flex flex-col gap-4">
           <div className={`${card} flex-1`}>
-            <h3 className="font-semibold text-gray-800">Learn the basics</h3>
+            <h3 className="font-semibold text-lg text-gray-800">Learn the basics</h3>
             <p className="mt-1 text-sm text-gray-600">
-              Two short courses in the Classroom, one on ordinary computing
-              and one on quantum. Each has hands-on simulators and ends with a
-              quiz. No background needed.
+              The Classroom has beginner friendly courses and hands-on material to take you
+              from the basics to quantum computing, with more added over
+              time.
             </p>
             <OutLink href={productUrl("quantum", "/classroom")}>Open the Classroom</OutLink>
           </div>
 
           <div className={`${card} flex-1`}>
-            <h3 className="font-semibold text-gray-800">Build in your browser</h3>
+            <h3 className="font-semibold text-lg text-gray-800">Build in your browser</h3>
             <p className="mt-1 text-sm text-gray-600">
-              In the Composer, drag steps onto qubits and watch the expected
-              results change as you go. Run the circuit when it looks right,
-              or export it for other quantum tools. You don&apos;t need an
-              account to start building.
+              The Composer is a visual editor for building quantum circuits
+              in your browser, then running them on simulators or real
+              hardware.
             </p>
             <OutLink href={productUrl("quantum", "/composer")}>Open the Composer</OutLink>
           </div>
         </div>
 
         <div className={card}>
-          <h3 className="font-semibold text-gray-800">Write code</h3>
+          <h3 className="font-semibold text-lg text-gray-800">Write code</h3>
           <p className="mt-1 text-sm text-gray-600">
             Install with <code className="font-mono text-xs">pip install lightrider</code>.
             Test circuits on a simulator on your own computer, then send them

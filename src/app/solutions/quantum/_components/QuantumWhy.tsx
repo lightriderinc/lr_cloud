@@ -31,8 +31,8 @@ export default function QuantumWhy() {
         {COMPARISON.map(({ label, text, highlight }) => (
           <div
             key={label}
-            className={`default-radius border-l-2 bg-gray-50 p-5 ${
-              highlight ? "border-[var(--brand-primary)]" : "border-gray-200"
+            className={`default-radius border-l-3 bg-gray-50 p-5 ${
+              highlight ? "gradient-border-brand" : "border-amber-500"
             }`}
           >
             <dt className="font-semibold text-gray-800">{label}</dt>
