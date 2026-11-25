@@ -52,3 +52,34 @@
     animation: none;
   }
 }
+
+/*
+ * Scroll-tracking thread joining the landing-page solution panels. The
+ * connector lines (`.thread-line`) and panel borders (`.thread-border`) share
+ * one gradient: neutral gray, brightening to the brand colours around
+ * `--glow-y` (the viewport centre, measured from each element's top edge and
+ * set by SolutionsThread). Because every piece measures from the same point,
+ * the bright band runs continuously from line into border as the page scrolls.
+ */
+.thread-line,
+.thread-border {
+  --glow-y: -200vh;
+  --thread-glow: linear-gradient(
+    180deg,
+    var(--gray-100) calc(var(--glow-y) - 45vh),
+    var(--gray-100) calc(var(--glow-y) - 12vh),
+    var(--brand-tertiary) calc(var(--glow-y) + 12vh),
+    var(--gray-100) calc(var(--glow-y) + 45vh)
+  );
+}
+
+.thread-line {
+  background: var(--thread-glow);
+}
+
+.thread-border {
+  border-color: transparent;
+  background:
+    linear-gradient(var(--background), var(--background)) padding-box,
+    var(--thread-glow) border-box;
+}

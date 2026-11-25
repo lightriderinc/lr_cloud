@@ -7,6 +7,7 @@ import { MdArrowForward } from "react-icons/md";
 import EntropyPreview from "./EntropyPreview";
 import PqcPreview from "./PqcPreview";
 import QuantumPreview from "./QuantumPreview";
+import SolutionsThread from "./SolutionsThread";
 
 // Landing-page copy for each solution. Kept here rather than in lib/solutions
 // so the solution pages' metadata summaries can stay more detailed.
@@ -46,12 +47,12 @@ export default function HomeSolutions() {
         </SectionHeading>
       </div>
 
-      <div className="flex flex-col">
+      <SolutionsThread>
         {SOLUTION_LIST.map(({ slug, href, name, navLabel, logo }, i) => {
           const { heading, body, preview } = COPY[slug];
           return (
             <Fragment key={slug}>
-              <article className="grid items-center gap-8 lg:grid-cols-2 lg:gap-16 border-2 border-gray-50 p-6 rounded">
+              <article className="thread-border grid items-center gap-8 lg:grid-cols-2 lg:gap-16 border-2 p-6 rounded">
                 <div className="flex flex-col gap-4">
                   <Image
                     src={logo.src}
@@ -79,20 +80,22 @@ export default function HomeSolutions() {
             </Fragment>
           );
         })}
-      </div>
+      </SolutionsThread>
     </section>
   );
 }
 
-// The thread between two solutions, labelled with what passes from one to the next.
+// The thread between two solutions, labelled with what passes from one to the
+// next. The lines touch the panels above and below so the glow runs straight
+// on into their borders (see `.thread-line` / `.thread-border`).
 function Connection({ label }: { label: string }) {
   return (
     <div className="flex flex-col items-center">
-      <span className="h-20 w-0.5 bg-linear-to-b from-transparent to-[var(--brand-tertiary)]" />
+      <span className="thread-line h-20 w-0.5" />
       <span className="rounded border border-gray-100 bg-gray-50 px-3 py-1 text-center text-xs text-gray-700">
         {label}
       </span>
-      <span className="h-20 w-0.5 bg-linear-to-b from-[var(--brand-primary)] to-transparent" />
+      <span className="thread-line h-20 w-0.5" />
     </div>
   );
 }
