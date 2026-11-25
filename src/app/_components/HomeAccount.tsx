@@ -15,7 +15,8 @@ const FEATURES = [
   },
   {
     title: "One credit balance",
-    description: "Buy credits once and spend them on quantum runs and entropy draws.",
+    description:
+      "Buy credits once and spend them on quantum runs and entropy draws.",
     href: "/settings/manage-credits",
     icon: PiCoinsFill,
   },
@@ -45,16 +46,18 @@ export default function HomeAccount() {
           <li key={href}>
             <Link
               href={href}
-              className="group flex h-full gap-4 border-l-2 border-gray-100 p-4 transition-colors hover:border-[var(--brand-tertiary)]"
+              className="group flex flex-col justify-between h-full gap-2 border border-gray-100 p-4 transition-colors hover:border-[var(--brand-tertiary)] bg-gray-100 default-radius"
             >
-              <Icon className="shrink-0 text-3xl text-gray-200 transition-colors group-hover:text-[var(--brand-tertiary)]" />
+              <Icon className="shrink-0 text-4xl text-gray-200 transition-colors group-hover:text-[var(--brand-tertiary)]" />
               <span className="flex flex-col gap-1">
                 <span className="flex items-center gap-2 font-semibold text-gray-800">
                   {title}
-                  <MdArrowForward className="text-gray-300 transition-colors group-hover:text-[var(--brand-primary)]" />
                 </span>
                 <span className="text-sm text-gray-600">{description}</span>
               </span>
+              <div className="flex justify-end">
+                <MdArrowForward className="text-gray-300 transition-colors text-xl group-hover:text-[var(--brand-primary)]" />
+              </div>
             </Link>
           </li>
         ))}
