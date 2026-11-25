@@ -30,7 +30,7 @@ export default function SolutionsThread({ children }: { children: ReactNode }) {
       const view = scroller
         ? scroller.getBoundingClientRect()
         : { top: 0, height: window.innerHeight };
-      const centre = view.top + view.height / 2;
+      const centre = view.top + view.height / 5;
       parts.forEach((el) => {
         const top = el.getBoundingClientRect().top;
         el.style.setProperty("--glow-y", `${centre - top}px`);
