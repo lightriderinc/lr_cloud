@@ -16,8 +16,8 @@ const COPY: Record<
   { heading: string; body: string; preview: ReactNode }
 > = {
   quantum: {
-    heading: "Run programs on real quantum computers.",
-    body: "Build in your browser or in Python, test for free on simulators, then run on machines from IQM, IonQ and Rigetti. You only pay for time on real hardware.",
+    heading: "Run programs on quantum computers.",
+    body: "Build in your browser or in Python, test for free on simulators, then run on QPUs from IQM, IonQ and Rigetti.",
     preview: <QuantumPreview />,
   },
   entropy: {
@@ -27,7 +27,7 @@ const COPY: Record<
   },
   pqc: {
     heading: "Protect today's data from tomorrow's computers.",
-    body: "Scan your code for encryption a quantum computer could break, see what to fix first, then encrypt and sign with keys built on the new NIST standards.",
+    body: "Scan your code for encryption a quantum computer could break, see what to fix first, then encrypt and sign with keys built on the latest NIST standards.",
     preview: <PqcPreview />,
   },
 };
