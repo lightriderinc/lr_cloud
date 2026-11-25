@@ -102,13 +102,7 @@ export default function PqcPreview() {
 
   return (
     <figure ref={ref} className="default-radius bg-gray-50 p-6">
-      <div className="flex flex-wrap items-center justify-between gap-3 text-xs">
-        <span className="font-semibold text-gray-700">
-          Messages recorded today
-          <span className="ml-2 font-normal text-gray-400">
-            {msg + 1} of {MESSAGES.length}
-          </span>
-        </span>
+      <div className="flex flex-wrap items-center justify-end gap-3 text-xs">
         <div role="group" aria-label="Encryption" className="flex default-radius bg-white p-0.5">
           {(Object.keys(MODES) as Mode[]).map((m) => (
             <button
@@ -117,7 +111,7 @@ export default function PqcPreview() {
               aria-pressed={mode === m}
               onClick={() => choose(m)}
               className={`cursor-pointer default-radius px-2.5 py-1 font-medium transition-colors ${
-                mode === m ? "bg-gray-800 text-white" : "text-gray-500 hover:text-gray-800"
+                mode === m ? "bg-brand-primary text-white" : "text-gray-500 hover:text-gray-800"
               }`}
             >
               {MODES[m].label}
