@@ -47,13 +47,12 @@ export default function QuantumHero() {
           {name}
         </h1>
         <p className="text-lg text-gray-700">
-          Run programs on real quantum computers, from your browser or your
+          Run programs on quantum computers, from your browser or your
           code.
         </p>
         <p className="text-sm text-gray-600">
           Build a quantum program, test it for free on a simulator, then run
-          it on machines from IQM, IonQ and Rigetti. Simulators cost nothing;
-          you pay in credits only for time on real hardware.
+          it on QPUs from IQM, IonQ and Rigetti.
         </p>
       </div>
 
