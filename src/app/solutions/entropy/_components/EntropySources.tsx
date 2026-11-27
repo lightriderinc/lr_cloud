@@ -4,12 +4,26 @@ import SectionHeading from "@/components/solutions/SectionHeading";
 // only sources offered there, plus its "coming soon" ones. Public beacons and
 // host RNGs are hidden on the platform, so they are not listed here either.
 const SOURCES = [
-  { name: "ANU Quantum RNG", kind: "Measures random flickers of light in a vacuum" },
-  { name: "Cisco Outshift QRNG", kind: "Quantum random number generator in the cloud" },
+  {
+    name: "ANU Quantum RNG",
+    kind: "Measures random flickers of light in a vacuum",
+  },
+  {
+    name: "Cisco Outshift QRNG",
+    kind: "Quantum random number generator in the cloud",
+  },
   { name: "QiSpace TQRND", kind: "Quantum random number generator" },
   { name: "IQM Resonance", kind: "Superconducting quantum computer" },
-  { name: "Light Rider QEC (IQM)", kind: "The same IQM hardware, with Light Rider error correction" },
-  { name: "Rigetti Cepheus-1-108Q", kind: "108-qubit superconducting quantum computer" },
+
+  {
+    name: "Light Rider QEC (IQM)",
+    kind: "The same IQM hardware, with Light Rider error correction",
+  },
+  {
+    name: "Rigetti Cepheus-1-108Q",
+    kind: "108-qubit superconducting quantum computer",
+  },
+  { name: "IonQ (Coming soon)", kind: "Trapped ion quantum computer" },
 ];
 
 const COMING_SOON = "IBM quantum computers";
@@ -33,7 +47,9 @@ export default function EntropySources() {
   return (
     <section>
       <SectionHeading title="Choose where your randomness comes from">
-        <span className="text-lg">Let a pool pick the devices, or choose them yourself.</span>
+        <span className="text-lg">
+          Let a pool pick the devices, or choose them yourself.
+        </span>
       </SectionHeading>
 
       <div className="grid gap-10 lg:grid-cols-2">
@@ -47,15 +63,21 @@ export default function EntropySources() {
         </ul>
 
         <div className="default-radius bg-gray-50 p-5">
-          <h3 className="text-md font-semibold text-gray-400">Available Sources</h3>
+          <h3 className="text-md font-semibold text-gray-400">
+            Available Sources
+          </h3>
           <ul className="mt-3 divide-y divide-gray-100">
             {SOURCES.map(({ name, kind }) => (
               <li
                 key={name}
                 className="flex flex-col gap-0.5 py-3 sm:flex-row sm:items-baseline sm:justify-between sm:gap-4"
               >
-                <span className="text-sm font-medium text-gray-800">{name}</span>
-                <span className="text-xs text-gray-500 sm:text-right">{kind}</span>
+                <span className="text-sm font-medium text-gray-800">
+                  {name}
+                </span>
+                <span className="text-xs text-gray-500 sm:text-right">
+                  {kind}
+                </span>
               </li>
             ))}
           </ul>
