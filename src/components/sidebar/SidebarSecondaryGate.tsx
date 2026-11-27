@@ -4,7 +4,7 @@ import { usePathname } from "next/navigation";
 
 // Route prefixes that get a secondary sidebar. Keep in sync with the branch
 // in SidebarNav.
-const SECONDARY_SIDEBAR_ROUTES = ["/settings"];
+const SECONDARY_SIDEBAR_ROUTES = ["/settings", "/legal"];
 
 export default function SidebarSecondaryGate({
   children,

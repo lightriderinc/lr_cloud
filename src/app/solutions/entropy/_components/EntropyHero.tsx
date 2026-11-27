@@ -53,30 +53,27 @@ export default function EntropyHero() {
           {name}
         </h1>
         <p className="text-lg text-gray-100">
-          Certified quantum randomness, with a receipt for every draw.
+          Random numbers from quantum hardware, with proof of where they came
+          from.
         </p>
         <p className="text-sm text-gray-200">
-          Draw verified random bytes from real quantum and certified hardware
-          sources through an API. Every batch is health-checked and mixed so
-          that no single source can bias it, and it arrives with a signed
-          receipt.
+          Draw random bytes from quantum computers and quantum random number
+          generators, in your browser or from your code. Every draw is tested,
+          blended and delivered with a signed receipt you can check and share.
         </p>
       </div>
 
       <div className="flex flex-wrap items-center gap-3">
         <GetStartedActions solution="entropy" />
-        <LRLinkButton href={DOCS_URL} variant="secondary-outline"
+        <LRLinkButton
+          href={DOCS_URL}
+          variant="secondary-outline"
           className="border-gray-300! text-white! hover:bg-white/10!"
           external
         >
           Documentation
         </LRLinkButton>
       </div>
-
-      <p className="text-xs text-gray-200">
-        Built for: Developers and enterprises that need auditable randomness
-        for encryption and AI.
-      </p>
     </PageHero>
   );
 }

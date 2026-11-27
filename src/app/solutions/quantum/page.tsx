@@ -1,9 +1,12 @@
 import CtaBand from "@/components/solutions/CtaBand";
 import { SOLUTIONS } from "@/lib/solutions";
 import type { Metadata } from "next";
-import QuantumCapabilities from "./_components/QuantumCapabilities";
+import QuantumGetStarted from "./_components/QuantumGetStarted";
+import QuantumHardware from "./_components/QuantumHardware";
 import QuantumHero from "./_components/QuantumHero";
-import QuantumHowItWorks from "./_components/QuantumHowItWorks";
+import QuantumRun from "./_components/QuantumRun";
+import QuantumUseCases from "./_components/QuantumUseCases";
+import QuantumWhy from "./_components/QuantumWhy";
 import QuantumWorksWith from "./_components/QuantumWorksWith";
 
 const solution = SOLUTIONS.quantum;
@@ -18,9 +21,12 @@ export default function Page() {
     <div className="animate-fade-in-up">
       <QuantumHero />
 
-      <div className="mx-auto flex max-w-7xl flex-col gap-20 py-14">
-        <QuantumCapabilities />
-        <QuantumHowItWorks />
+      <div className="mx-auto flex max-w-7xl flex-col gap-40 py-14">
+        <QuantumWhy />
+        <QuantumRun />
+        <QuantumHardware />
+        <QuantumUseCases />
+        <QuantumGetStarted />
         <QuantumWorksWith />
       </div>
 

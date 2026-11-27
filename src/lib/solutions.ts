@@ -42,6 +42,7 @@ export interface Solution {
   /** Short label for nav items. */
   link: string;
   navLabel: string;
+  /** Official platform name ("Light Rider <X>"). Used site-wide and in legal copy; don't use descriptive names. */
   name: string;
   /** Where the platform sits in the stack, e.g. "Compute". */
   layer: string;
@@ -57,13 +58,13 @@ export const SOLUTIONS: Record<SolutionSlug, Solution> = {
     href: "/solutions/quantum",
     link: productUrl("quantum"),
     navLabel: "Quantum",
-    name: "Quantum Compute",
+    name: "Light Rider Quantum",
     layer: "Quantum",
     icon: TbAtom2Filled,
     logo: { src: "/lightrider-quantum-logo-black.svg", width: 255, height: 18 },
-    tagline: "Your gateway to quantum computing.",
+    tagline: "Run programs on real quantum computers.",
     summary:
-      "Run quantum circuits on simulators and real QPUs, book dedicated hardware time, and build on managed quantum services and applications, all paid for with pay-as-you-go compute credits.",
+      "Build quantum programs in your browser or in Python, test them free on simulators, and run them on quantum computers from IQM, IonQ and Rigetti. You pay only for time on real hardware.",
   },
 
   pqc: {
@@ -71,13 +72,13 @@ export const SOLUTIONS: Record<SolutionSlug, Solution> = {
     href: "/solutions/pqc",
     link: productUrl("pqc"),
     navLabel: "PQC",
-    name: "Post-Quantum Cryptography",
+    name: "Light Rider PQC",
     layer: "PQC",
     icon: MdShield,
     logo: { src: "/Lightrider-pqc-logo-black.svg", width: 226, height: 18 },
     tagline: "Find quantum-vulnerable cryptography, then replace it.",
     summary:
-      "Veloce gets you ready for harvest-now-decrypt-later attacks. It finds the cryptography in your code that quantum computers will break, then lets you encrypt and sign with NIST-aligned ML-KEM and ML-DSA keys backed by quantum entropy.",
+      "Light Rider PQC gets you ready for harvest-now-decrypt-later attacks. It finds the cryptography in your code that quantum computers will break, then lets you encrypt and sign with NIST-aligned ML-KEM and ML-DSA keys backed by quantum entropy.",
   },
 
   entropy: {
@@ -85,7 +86,7 @@ export const SOLUTIONS: Record<SolutionSlug, Solution> = {
     href: "/solutions/entropy",
     link: productUrl("entropy"),
     navLabel: "Entropy",
-    name: "Entropy as a Service",
+    name: "Light Rider Entropy",
     layer: "Entropy",
     icon: GiPerspectiveDiceSixFacesRandom,
     logo: { src: "/lightrider-entropy-logo-black.svg", width: 252, height: 18 },

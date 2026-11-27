@@ -1,0 +1,42 @@
+These Light Rider PQC Terms of Service (the "**PQC Terms**") apply when you use **Light Rider PQC**, including qSearch, the PQC applications, and related APIs and services. They supplement the Light Rider [General Terms of Use](/legal/terms), which apply to every Light Rider platform through your Light Rider Cloud account. If the two conflict, these PQC Terms control for Light Rider PQC only. Capitalized terms not defined here have the meaning given in the General Terms.
+
+## 1. What Light Rider PQC provides
+
+- **qSearch.** You can upload a source file, configuration file, certificate or ZIP archive, and qSearch scans it for cryptography that is vulnerable to quantum attacks (the "**Findings**").
+- **Applications.** Tools and demonstrations that run in your browser, such as encryption and signing with ML-KEM and ML-DSA, secret splitting, a JWT inspector, a PQC speed test, a compatibility check against published test vectors, and a harvest-now-decrypt-later demonstration (the "**Applications**").
+- **Entropy for key generation.** Some Applications can seed key generation with randomness supplied by Light Rider's entropy service.
+
+## 2. qSearch
+
+- **You must have the right to upload what you scan.** Only upload code and files that you own or are authorized to analyze, and make sure doing so does not breach any confidentiality obligation, license or law.
+- **Avoid uploading live secrets.** Remove production private keys, passwords, tokens and personal information before uploading, unless scanning them is the point. qSearch is designed to find cryptographic usage, and Findings may quote parts of your files as evidence.
+- **Processing.** Files are processed on Light Rider's servers only to produce Findings and are deleted as soon as the scan finishes. Findings are returned to your browser and are not stored by us. See the Light Rider [Privacy Policy](/legal/privacy).
+- **Limits.** Uploads are subject to the size, file-type and time limits shown in Light Rider PQC. Scans that exceed them may fail.
+- **Accuracy.** qSearch uses automated analysis. **Findings may include false positives and may miss vulnerable cryptography (false negatives)**, including cryptography in dependencies, binaries, generated code or file types qSearch does not support. Risk ratings, classifications and confidence levels are estimates. Findings are a starting point for your own review, not a complete inventory, an audit, a certification or legal or compliance advice.
+
+## 3. Applications
+
+- **Many Applications are demonstrations.** Applications labeled "Demo" are provided to illustrate post-quantum cryptography and are not intended to protect real data. Applications labeled "Tool" are more complete, but are still provided under the General Terms' disclaimers.
+- **Local processing.** The Applications perform their cryptographic operations in your browser. Keys, plaintext, secrets, tokens and other material you enter into an Application are processed on your device and are not sent to Light Rider, except as described in the next bullet.
+- **Server-supplied seeds.** When an Application uses Light Rider entropy to generate keys, the seed material is generated or obtained by Light Rider's servers and sent to your browser over an encrypted connection, where the keys are derived. Our servers therefore handle that seed material, although we do not save it. If you need key material that no other party has ever handled, generate keys with your own entropy.
+- **Key custody.** Light Rider does not hold, escrow or back up keys or secrets created with the Applications. **If you lose a private key, secret share or decryption key, we cannot recover it or the data it protects.**
+- **Do not paste live secrets** into the JWT inspector or similar tools. Use test tokens and test keys.
+
+## 4. No certification; no production security guarantee
+
+Light Rider PQC implements or references algorithms standardized by NIST, such as ML-KEM (FIPS 203), ML-DSA (FIPS 204) and SLH-DSA (FIPS 205), and uses third-party open-source libraries. **These references describe the algorithms used. Unless we expressly state otherwise in writing, Light Rider PQC and its Applications are not FIPS 140-validated cryptographic modules, have not been certified by NIST or any other body, and are not represented as meeting any particular regulatory or compliance requirement** (for example, CNSA 2.0 or a sector-specific mandate). Statements about readiness for migration timelines are general guidance only.
+
+Cryptographic algorithms and implementations can contain undiscovered weaknesses, and today's standards may be revised. **Do not rely on the Applications to protect production systems or sensitive data.** You remain responsible for your own cryptographic design, migration planning, key management and compliance.
+
+## 5. Export controls
+
+Cryptographic software, source code and technology are subject to export control laws, including the U.S. Export Administration Regulations, and in some countries to restrictions on import or use. Section 9 of the General Terms applies to everything you access or obtain through Light Rider PQC, including Findings, Applications, downloadable keys and the open-source components served to your browser. You are responsible for complying with the encryption laws of the country where you use Light Rider PQC.
+
+## 6. Additional acceptable use
+
+In addition to Section 8 of the General Terms, you must not:
+
+- use qSearch or the Applications to analyze, attack or decrypt systems, tokens or data that you do not own or are not authorized to test;
+- upload code or files you obtained without authorization, or that contain malware intended to attack the scanning service;
+- submit scans through any external scanning endpoint without the credentials we issue for it; or
+- represent Findings or Application output as a certification, audit or endorsement by Light Rider.

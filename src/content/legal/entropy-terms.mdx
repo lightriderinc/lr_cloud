@@ -1,0 +1,53 @@
+These Light Rider Entropy Terms of Service (the "**Entropy Terms**") apply when you use **Light Rider Entropy**, including the Get Entropy console, signed receipts, the source catalogue, the Entropy API and SDK, and related services. They supplement the Light Rider [General Terms of Use](/legal/terms), which apply to every Light Rider platform through your Light Rider Cloud account. If the two conflict, these Entropy Terms control for Light Rider Entropy only. Capitalized terms not defined here have the meaning given in the General Terms.
+
+## 1. What Light Rider Entropy provides
+
+- **Random bytes.** You can draw random bytes ("**Entropy**") from a preset pool, from a custom pool of sources you choose, or from a single source, in the amounts allowed by Light Rider Entropy.
+- **Sources.** Entropy is drawn from quantum random number generators, quantum processors and other hardware or public randomness sources, some of which are operated by third parties (each a "**Source**"). The catalogue shows which Sources are currently available. Sources marked "Coming soon" are not available.
+- **Processing.** Raw output from Sources is health-tested and cryptographically conditioned and mixed before delivery, as described in our documentation.
+- **Signed receipts.** Each successful draw produces a receipt describing it (for example, the Sources that contributed, the amount delivered, health-test outcomes and a commitment), signed with a Light Rider signing key. You can verify a receipt using our published public key.
+
+## 2. Credits, pricing and failed draws
+
+- Draws consume Credits at the rate shown in Light Rider Entropy at the time of the draw (for example, a number of Credits per block of bytes, with a minimum charge per draw).
+- Promotional Credits may not be usable for draws until your account has made a qualifying purchase or received Credits from another user, as shown in Light Rider Entropy.
+- **You are not charged for Entropy you do not receive.** If a draw fails, including because a Source is empty or unavailable, the Credits charged for it are returned to your wallet automatically, normally within minutes. This automatic return is your only remedy for a failed draw.
+
+## 3. Sources and availability
+
+- When you choose a single Source or a custom pool through the API, we will not silently substitute a different Source. If a chosen Source cannot supply Entropy, the request fails and is not charged.
+- Preset pools may draw from any of the Sources in that pool, and may combine their output with other high-quality randomness, as described in the documentation.
+- Third-party Sources may be unavailable, rate-limited, changed or withdrawn by their operators without notice. Light Rider is not responsible for their availability or performance.
+
+## 4. What "certified" and "verified" mean
+
+Light Rider Entropy describes Entropy as certified or verified. **This means that each batch is subjected to statistical health tests (including tests modeled on NIST SP 800-90B) and that each successful draw comes with a cryptographically signed receipt.** Unless we expressly state otherwise in writing for a specific Source or product, it does **not** mean that Light Rider Entropy, any Source, or any output has been certified, validated or approved by NIST or any other government body, accreditation body or independent laboratory, including under the Entropy Source Validation or Cryptographic Module Validation Programs.
+
+Health tests reduce, but do not eliminate, the risk of defective output. A receipt shows how a draw was produced and that the receipt has not been altered; it is not a guarantee that the output is unpredictable.
+
+## 5. Your responsibilities for using Entropy
+
+- **Light Rider does not keep the Entropy delivered to you.** Once delivered, keeping it safe, secret and unused by others is your responsibility. If you use Entropy as key material, treat it as you would any secret key.
+- Entropy delivered through the website is shown in your browser and may be kept in that browser tab's session history until you close it. Take care on shared devices.
+- You are responsible for deciding whether Entropy is suitable for your purpose and for how you combine it with other randomness. For production cryptographic systems we recommend using Entropy as an additional input to a properly designed random bit generator, not as its only source.
+- **Do not use Light Rider Entropy as the sole source of randomness for lotteries, gaming or gambling, safety-critical systems or regulated uses that require certified randomness**, unless we have agreed to that use in writing.
+
+## 6. Receipts
+
+Receipts are designed to be a permanent, independently verifiable record. We keep them so that you and anyone you share them with can verify draws, as described in the Light Rider [Privacy Policy](/legal/privacy). Receipts do not contain the Entropy itself. If you share a receipt, the recipient can see what it contains.
+
+We may rotate our receipt signing keys. Receipts signed with an earlier key remain verifiable with that key, which we will continue to publish for as long as reasonably practicable.
+
+## 7. Entropy API
+
+- Use of the Entropy API is subject to the API key rules in Section 7 of the General Terms and to the limits stated in the documentation, including the maximum bytes per request and the number of requests per minute per key. Requests over the limit are rejected and are not charged.
+- Use idempotency keys as documented to avoid being charged twice for a retried request.
+- Your API key also works across the other Services and can spend your Credits there, so protect it accordingly.
+
+## 8. Additional acceptable use
+
+In addition to Section 8 of the General Terms, you must not:
+
+- resell, redistribute or offer Entropy as a randomness service to third parties without our written agreement;
+- attempt to influence, predict or interfere with any Source, or with the health-testing, mixing or signing process; or
+- forge, alter or misrepresent receipts, or present a receipt as relating to bytes it does not describe.

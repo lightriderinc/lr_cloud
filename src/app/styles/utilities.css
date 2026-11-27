@@ -5,3 +5,81 @@
 .border-color-brand {
   border-color: var(--brand-tertiary);
 }
+
+/*
+ * Animated brand-gradient border that keeps rounded corners (border-image
+ * would drop them). Pair with a border width utility, e.g. `border-l-3`.
+ * The gray fill covers the padding box; the gradient layer is twice the
+ * element's height and holds two identical colour cycles, so sliding it by
+ * one cycle loops seamlessly.
+ */
+.gradient-border-brand {
+  border-color: transparent;
+  background:
+    linear-gradient(var(--color-gray-50), var(--color-gray-50)) padding-box,
+    linear-gradient(
+        180deg,
+        var(--brand-secondary),
+        var(--brand-secondary),
+        var(--brand-tertiary),
+        var(--brand-secondary),
+        var(--brand-secondary),
+        var(--brand-tertiary),
+        var(--brand-secondary)
+      )
+      border-box;
+  background-size:
+    100% 100%,
+    100% 200%;
+  animation: gradient-border-flow 4s linear infinite;
+}
+
+@keyframes gradient-border-flow {
+  from {
+    background-position:
+      0 0,
+      0 0;
+  }
+  to {
+    background-position:
+      0 0,
+      0 100%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .gradient-border-brand {
+    animation: none;
+  }
+}
+
+/*
+ * Scroll-tracking thread joining the landing-page solution panels. The
+ * connector lines (`.thread-line`) and panel borders (`.thread-border`) share
+ * one gradient: neutral gray, brightening to the brand colours around
+ * `--glow-y` (the viewport centre, measured from each element's top edge and
+ * set by SolutionsThread). Because every piece measures from the same point,
+ * the bright band runs continuously from line into border as the page scrolls.
+ */
+.thread-line,
+.thread-border {
+  --glow-y: -200vh;
+  --thread-glow: linear-gradient(
+    180deg,
+    var(--gray-100) calc(var(--glow-y) - 45vh),
+    var(--gray-100) calc(var(--glow-y) - 12vh),
+    var(--brand-tertiary) calc(var(--glow-y) + 12vh),
+    var(--gray-100) calc(var(--glow-y) + 45vh)
+  );
+}
+
+.thread-line {
+  background: var(--thread-glow);
+}
+
+.thread-border {
+  border-color: transparent;
+  background:
+    linear-gradient(var(--background), var(--background)) padding-box,
+    var(--thread-glow) border-box;
+}

@@ -1,0 +1,237 @@
+This Privacy Policy explains how **Light Rider Inc.** ("**Light Rider**," "**we**," "**us**," or "**our**") collects, uses, shares and protects personal information when you use your Light Rider Cloud account and the Light Rider platforms: **Light Rider Cloud**, **Light Rider Quantum**, **Light Rider Entropy** and **Light Rider PQC**, together with their applications, APIs, SDKs and websites (together, the "**Services**").
+
+**One account, one policy.** A single Light Rider Cloud account signs you in to every platform, and your profile, credit wallet and billing details are shared between them. This Policy therefore covers all of the platforms. Section 3 explains the information that is specific to each one. Terms in this Policy that are not defined here have the meaning given in our [General Terms of Use](/legal/terms).
+
+> **In short:** we collect what we need to run your account and the platforms. We do not sell your personal information, we do not share it for targeted advertising, and we do not use third-party analytics or advertising trackers on any platform.
+
+## 1. Who we are
+
+Light Rider Inc. is the **controller** of the personal information described in this Policy (meaning we decide how and why it is processed), on every platform.
+
+**Light Rider Inc.**\
+5825 University Research Ct, Suite 2000\
+College Park, MD 20740\
+United States\
+Email: [info@lightriderinc.com](mailto:info@lightriderinc.com)
+
+If you use the Services through an organization that has a separate agreement with us, that organization may control some of the information about your use, and its own privacy notice may also apply.
+
+## 2. Information we collect across all platforms
+
+### Information you give us
+
+| Category | Examples | Where it comes from |
+| --- | --- | --- |
+| Account and identity | Name, email address, password (stored only in protected, hashed form by our identity provider), date of birth, multi-factor authentication settings | You, when you sign up or edit your account |
+| Linked sign-in accounts | Identifier, name, email and profile picture from Google, GitHub, Microsoft or Apple, if you sign in with one of them | The provider you choose, with your permission |
+| Profile picture | An image you upload, or an image URL you provide | You |
+| Billing | Billing name and address, purchase history, subscriptions, credit balance and ledger, card brand, last four digits and expiry date | You and our payment processor, Stripe. **We never receive or store your full card number.** |
+| Credit sharing | The email address of each person you send Credits to, the amount and the time | You |
+| Invitations and referrals | The email address of each person you invite, the invitation status, and whether a referral qualified for a reward | You |
+| Content you submit | Quantum circuits and job parameters, entropy draw requests, files uploaded for scanning, and similar inputs (see Section 3) | You |
+| Communications | Messages you send us, support requests, feedback and sales enquiries (including your work email, company, use case and deployment preferences) | You |
+| Legal acceptance records | Which version of our terms or policies you accepted, when, in what context (for example, at sign-up), and the IP address and browser user agent used | Created when you accept |
+
+### Information collected automatically
+
+| Category | Examples |
+| --- | --- |
+| Usage and transaction records | Jobs submitted, entropy draws, reservations, credits charged and refunded, timestamps, the platform used, and whether a request came from a website or the API |
+| API key metadata | A short key prefix, when the key was created, rotated and last used, and request counts used for rate limiting. **The full key is never stored; we keep only a hashed form.** |
+| Device and log data | IP address, browser type and version, operating system, referring page, request paths, error details and timestamps, recorded in server logs by us and our hosting provider |
+| Approximate location | Country or region inferred from your IP address. We do not collect precise location. |
+| Session and security data | Session identifiers, sign-in and sign-out events on each platform, and records of revoked sessions |
+
+### Information about people who are not users
+
+When a user invites you or sends you Credits, they give us your email address. We use it only to send you that invitation or to match the Credits to your account, and to operate and protect the rewards program. If you would rather not hear from us, follow the opt-out instructions in Section 10.
+
+### Sensitive information
+
+We do not ask for sensitive personal information such as government ID numbers, financial account numbers, health information or biometric data, and we ask that you do not submit it in your content. Your account password is sensitive: it is handled by our identity provider and is never visible to us in readable form.
+
+## 3. Information specific to each platform
+
+### Light Rider Cloud
+
+Light Rider Cloud is where your account, wallet and billing live. It handles your profile, credit balance and ledger, purchases and subscriptions, credit transfers, invitations and referrals, and sales enquiries, as described in Section 2. Your profile, wallet and payment details are available to every platform so they can sign you in and charge Credits.
+
+### Light Rider Quantum
+
+| Information | Details |
+| --- | --- |
+| Job records | Job identifier, the backend you chose, number of shots, status, cost in Credits, and when the job was created and finished |
+| Circuits and results | The circuit and parameters you submit, and the measurement results returned, kept by our job service so you can view them |
+| Reservations | Device, start and end time, price, the service fee applied, Credits charged, any notes you add, and the hardware provider's reservation reference |
+| Interface preferences | Whether you have seen product tours or welcome messages, recently run classroom experiments and list view settings, stored in your browser |
+
+To run a job or reservation, we send the technical content needed (the circuit, target device, number of shots and similar parameters) to the third-party operator of that device, such as IQM, Rigetti or IBM Quantum, under Light Rider's credentials. **We do not send your name, email address or account identifier to hardware providers.** Providers may keep technical logs of the jobs they run, so avoid putting personal or confidential information in circuit names, labels or metadata.
+
+### Light Rider Entropy
+
+| Information | Details |
+| --- | --- |
+| Draw records | The mode and sources requested, number of bytes, cost in Credits, status, any failure reason, whether the request came from the website or the API, the API key prefix used, and timestamps |
+| Signed receipts | The receipt for each successful draw, including the contributing sources, the amount delivered, health-test results, a commitment, the signing key's fingerprint and timestamps, linked to your account |
+| Browser session history | Your most recent draws, including the bytes, kept only in your browser tab's session storage and deleted when you close the tab. It is never sent to us. |
+
+**We do not keep the random bytes we deliver to you.** They are never saved to our databases, which have no place to hold them, and receipts do not include them. Our entropy service requests raw randomness from sources, some run by third parties (for example, ANU, Cisco Outshift, QiSpace, IQM, Rigetti and public randomness beacons such as NIST's), under Light Rider's credentials, and **we do not send your name, email address or account identifier to source operators.**
+
+### Light Rider PQC
+
+| Information | What happens to it |
+| --- | --- |
+| Files uploaded to qSearch | Written to temporary storage on our server, scanned, and **deleted as soon as the scan finishes**, whether it succeeds or fails. They are not written to a database. |
+| Scan findings | Returned to your browser and **not stored by us**. A download of findings is created in your browser. |
+| Application inputs | Keys, messages, files, secrets, secret shares and tokens you enter into the PQC applications are processed in your browser and **are not sent to Light Rider**. Keys and files you download are created on your device. |
+| Entropy for key generation | When an application asks for Light Rider entropy, our servers obtain random bytes (for example, from NIST's randomness beacon or Light Rider's quantum backend) and send them to your browser. We do not save them to a database, and the request does not include your keys or other inputs. |
+| Speed-test results | Kept in your browser's session storage, together with your device's platform and number of processor cores, until you close the tab. They are not sent to us. |
+
+Uploaded files may contain personal information, such as names or email addresses in code comments. We process it only to perform the scan, and it is deleted with the file. Server logs may record that a scan ran, its size and any error, but not the contents of your files.
+
+## 4. How we use personal information
+
+| Purpose | Legal basis (EEA/UK) |
+| --- | --- |
+| Create and manage your Light Rider Cloud account, sign you in across the platforms, and keep you signed in | Contract |
+| Provide the Services you request, including running jobs, drawing entropy, scanning files and returning results | Contract |
+| Process payments, maintain your credit wallet, apply promotions and rewards, and keep financial records | Contract; legal obligation |
+| Send transactional messages, such as verification codes, receipts, invitations you ask us to send, service notices and changes to our terms | Contract; legitimate interests |
+| Provide support and respond to enquiries, including sales enquiries | Contract; legitimate interests |
+| Secure the Services: authentication, multi-factor authentication, rate limiting, fraud and abuse prevention, and investigating misuse | Legitimate interests; legal obligation |
+| Record your acceptance of our terms and policies | Legal obligation; legitimate interests |
+| Maintain, debug and improve the Services, using operational logs and aggregated usage information | Legitimate interests |
+| Comply with law, enforce our terms, and establish or defend legal claims | Legal obligation; legitimate interests |
+| Send product news or marketing, if we do so in future | Consent where required; otherwise legitimate interests, and you can opt out at any time |
+
+Where we rely on **legitimate interests**, those interests are operating a secure, reliable and commercially viable service, and we have balanced them against your rights. We **do not** use your personal information for automated decision-making that has legal or similarly significant effects on you, and we do not use Your Content to train machine-learning models.
+
+## 5. Cookies and similar technologies
+
+Every platform uses only **strictly necessary and functional** cookies and browser storage. We do **not** use advertising cookies, cross-site tracking, tracking pixels or third-party analytics. Because of this, we do not show a cookie consent banner. If we ever introduce non-essential cookies, we will update this Policy and ask for consent where required.
+
+| Name or type | Purpose | Duration |
+| --- | --- | --- |
+| Sign-in session cookie (`logto_...`) | Keeps you signed in to a platform; encrypted | Until you sign out or the session ends |
+| Single sign-on helper cookies (`lr_silent_sso_...`) | Check whether you are already signed in to another Light Rider platform, and return you to the right page | Seconds to a few minutes |
+| Invitation cookie (`lr_invite_token`) | Carries an invitation link through sign-up so the invitation can be credited | 30 minutes |
+| Session storage | Interface state such as the tab or view you chose and dismissed banners, plus the Light Rider Entropy session history and Light Rider PQC speed-test results described in Section 3 | Until you close the tab |
+| Local storage | Interface preferences, such as whether you have seen a product tour or which programming language you chose in the documentation | Until you clear it |
+
+You can block or delete cookies in your browser settings, but if you block the sign-in cookies the Services will not work. Our fonts are served from our own servers, so loading our pages does not send your information to a font provider. Some pages may display images hosted elsewhere (for example, a profile picture from your sign-in provider or an image URL you supplied); loading those images lets that host see your IP address.
+
+**Global Privacy Control.** We do not sell or share personal information for targeted advertising, so there is nothing to opt out of. We nevertheless treat a Global Privacy Control signal as a valid opt-out request.
+
+## 6. How we share personal information
+
+**We do not sell your personal information, and we do not share it for cross-context behavioral advertising.** We disclose it only as follows.
+
+### Service providers (processors)
+
+These providers process personal information for us, across all platforms, under contracts that restrict their use of it:
+
+| Provider | What they do for us |
+| --- | --- |
+| **Logto** | Identity: sign-up, sign-in, single sign-on across the platforms, passwords, multi-factor authentication, email verification codes and account profile |
+| **Supabase** | Database hosting for account, billing and platform records, and storage for profile pictures |
+| **Stripe** | Payment processing, invoices, subscriptions and the customer billing portal |
+| **Postmark** | Sending invitation emails |
+| **Vercel** | Website and application hosting, and server logs |
+
+### Third parties you direct us to use
+
+- **Sign-in providers.** If you sign in with Google, GitHub, Microsoft or Apple, that provider shares information with us as described above, under its own privacy policy.
+- **Quantum hardware and entropy providers.** As explained in Section 3, we send the technical content needed to run jobs and draw entropy to third-party hardware operators and randomness services, without your name, email address or account identifier.
+- **Other users.** When you send Credits or an invitation, the recipient can see that it came from you (for example, your name or email address). If you share an entropy receipt, the recipient can see what it contains. Your **profile picture is stored at a public web address** so it can be displayed across the platforms; anyone with that address can view the image.
+
+### Other disclosures
+
+- **Between the Light Rider platforms.** Your account, profile and wallet are shared across all of the platforms, so each platform can see the account information and balance it needs.
+- **Professional advisers**, such as lawyers, auditors and insurers, under confidentiality obligations.
+- **Legal and safety.** When we believe in good faith that disclosure is required by law or legal process, or is needed to protect the rights, property or safety of Light Rider, our users or others, or to investigate fraud or security issues.
+- **Business transfers.** In connection with a merger, acquisition, financing, reorganization or sale of assets, subject to standard confidentiality protections. We will tell you if your information becomes subject to a different privacy policy.
+- **With your consent** or at your direction.
+
+We may also share aggregated or de-identified information that cannot reasonably be used to identify you.
+
+## 7. International data transfers
+
+Light Rider is based in the United States, and we and our providers process personal information in the United States and other countries. Those countries may have data protection laws different from those where you live. Where we transfer personal information from the European Economic Area, the United Kingdom or Switzerland, we rely on appropriate safeguards such as the European Commission's Standard Contractual Clauses and the UK International Data Transfer Addendum, or another lawful transfer mechanism. Contact us for more information.
+
+## 8. How long we keep personal information
+
+We keep personal information only for as long as we need it for the purposes in this Policy, and then delete or de-identify it.
+
+| Information | How long we keep it |
+| --- | --- |
+| Account and profile | While your account is open, and up to 2 years after closure, unless you ask us to delete it sooner and no exception applies |
+| Billing, purchase, credit and transfer records | As long as required for tax, accounting and audit purposes, generally up to 7 years after the transaction |
+| Light Rider Quantum job and reservation records | While your account is open, and afterwards as long as needed for billing, audit and dispute purposes. Circuits and results may be removed after a period of inactivity or when your account is closed. |
+| Light Rider Entropy draw records | While your account is open, and afterwards as long as needed for billing, audit and dispute purposes |
+| Light Rider Entropy signed receipts | Receipts are a permanent, verifiable record and are kept for as long as they may need to be verified, which may continue after your account is closed. On an account deletion request, we remove or de-identify the link to your personal information where we can. |
+| Light Rider PQC uploads and findings | Uploads are deleted as soon as the scan finishes; findings are not stored |
+| Generated random bytes | Not kept |
+| Legal acceptance records | For as long as the accepted document may be relevant to our relationship with you, and for the period in which claims could be brought |
+| Invitations and referrals | While the referral program operates and for as long as needed to resolve disputes |
+| Server and security logs | Generally no longer than 12 months, unless needed to investigate an incident |
+| Revoked session records | Around 30 days |
+| Sales and support enquiries | Up to 3 years after our last interaction |
+| Browser storage | Stays on your device until you close the tab or clear it, as described in Section 5 |
+
+## 9. Security
+
+We use administrative, technical and organizational measures designed to protect personal information. These include HTTPS encryption between your browser and the Services, encrypted session cookies, hashed API keys, optional multi-factor authentication, access controls and least-privilege service credentials. No method of transmission or storage is completely secure, so we cannot guarantee absolute security. If we become aware of a breach that affects your personal information, we will notify you and the authorities where the law requires.
+
+You can help protect your account by using a strong, unique password, enabling multi-factor authentication, and keeping your API key secret. Remember that your API key works across every platform.
+
+## 10. Your choices and rights
+
+### Choices for everyone
+
+- **Account information.** You can view and update your name, email address, password, date of birth, profile picture, linked accounts and multi-factor authentication in your account settings on any platform. Changes apply everywhere.
+- **Closing your account and deleting data.** You can ask us to close your Light Rider Cloud account and delete your personal information by emailing [info@lightriderinc.com](mailto:info@lightriderinc.com). This closes your access to every platform. We will delete or de-identify your information, except where we must keep it (for example, financial records we are legally required to retain, or entropy receipts kept for verification and audit as explained in Section 8).
+- **Your content.** You can download job results, entropy receipts and scan findings at any time, and clear information kept in your browser.
+- **Emails.** You cannot opt out of essential service and account messages while you have an account. If we send marketing emails, each will include an unsubscribe link. If you received an invitation and do not want any more, contact us and we will stop invitations to your address.
+- **API keys.** You can rotate or revoke your API key at any time.
+
+### If you are in the EEA, UK or Switzerland
+
+You have the right to **access**, **rectify** and **erase** your personal information, to **restrict** or **object** to its processing (including processing based on legitimate interests), to **data portability**, and to **withdraw consent** at any time where we rely on consent (this does not affect earlier processing). You also have the right to lodge a complaint with your local data protection authority, although we would appreciate the chance to address your concern first.
+
+### If you are a resident of California or another U.S. state with a privacy law
+
+Depending on where you live, you may have the right to:
+
+- **know** what personal information we have collected about you, the categories of sources, our purposes, and the categories of third parties we disclose it to;
+- **access** and receive a portable copy of your personal information;
+- **correct** inaccurate personal information;
+- **delete** personal information, subject to legal exceptions;
+- **opt out** of the sale or sharing of personal information for targeted advertising, and of profiling with significant effects. **We do not do any of these things**;
+- **limit** the use of sensitive personal information. We use account credentials only to authenticate you, which is a permitted purpose; and
+- **not be discriminated against** for exercising your rights.
+
+In the last 12 months we have collected the categories of personal information described in Sections 2 and 3: identifiers; customer records; commercial information; internet or other electronic network activity; approximate geolocation; and account log-in credentials. We collected them from the sources described in Section 2, for the business purposes in Section 4, and disclosed them for business purposes to the categories of recipients in Section 6. We have not sold or shared personal information, and we have no actual knowledge of selling or sharing the personal information of anyone under 16.
+
+### How to exercise your rights
+
+Email [info@lightriderinc.com](mailto:info@lightriderinc.com) or use our [contact form](https://www.lightriderinc.com/contact). One request covers all of the platforms. We will need to verify your identity, normally by confirming control of the email address on your account. You may use an authorized agent; we may ask the agent for proof of authorization and ask you to verify your identity directly. We will respond within the time the law requires (for example, one month under the GDPR and 45 days under the CCPA, which may be extended where the law allows). If we deny your request, you may appeal by replying to our decision, and we will respond to your appeal within the time the law requires.
+
+## 11. Children
+
+The Services are not directed to children, and you must be at least 18 to create an account. We do not knowingly collect personal information from anyone under 18. If you believe a child has given us personal information, contact us and we will delete it.
+
+## 12. Changes to this Policy
+
+We may update this Policy from time to time. We will post the updated version on this page and change the "Last updated" date. If a change is material, we will tell you in advance by email or in the Services, and where the law requires, we will ask for your consent.
+
+## 13. Contact us
+
+If you have questions about this Policy or how we handle your personal information on any platform, contact us at:
+
+**Light Rider Inc.**\
+5825 University Research Ct, Suite 2000\
+College Park, MD 20740\
+United States
+
+Email: [info@lightriderinc.com](mailto:info@lightriderinc.com)\
+Contact form: [lightriderinc.com/contact](https://www.lightriderinc.com/contact)
